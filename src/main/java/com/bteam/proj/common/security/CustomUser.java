@@ -1,0 +1,25 @@
+package com.bteam.proj.common.security;
+
+import java.util.stream.Collectors;
+
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+
+import com.bteam.proj.member.vo.MemberVO;
+
+public class CustomUser extends User {
+	
+	
+	public CustomUser(MemberVO member) {
+		super(
+				member.getMemNo()
+				,member.getMemPass()
+				,member.getRoleList().stream()
+					.map(role -> new SimpleGrantedAuthority(role))
+					.collect(Collectors.toList())
+				);
+		
+		System.out.println("CustomUser : "+ member.getRoleList().stream().map(role -> new SimpleGrantedAuthority(role)).collect(Collectors.toList()));
+		
+	}
+}

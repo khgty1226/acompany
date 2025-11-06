@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.bteam.proj.board.dao.IBoardDAO">
+
+<sql id="freeBoardHeartSearch">
+
+	<if test="boardCode != null and boardCode !=''">
+		<choose>
+			<when test="boardCode=='B-01'">
+				and board_code LIKE '%' || 01 || '%'
+			</when>
+			<when test="boardCode=='B-02'">
+				and board_code LIKE '%' || 02 || '%'
+			</when>
+			<when test="boardCode=='B-03'">
+				and board_code LIKE '%' || 03 || '%'
+			</when>
+			<when test="boardCode=='B-04'">
+				and board_code LIKE '%' || 04 || '%'
+			</when>
+		</choose>
+	</if>
+	
+		<if test="searchWord != null and searchWord !=''">
+		<choose>
+			<when test='searchType=="T"'>
+				and UPPER(board_title) like '%' || UPPER(#{searchWord}) || '%'
+			</when>
+			<when test='searchType=="W"'>
+				and a.mem_no like '%' || #{searchWord} || '%'
+			</when>
+			<when test='searchType=="C"'>
+				and UPPER(board_content) like '%' || UPPER(#{searchWord}) || '%'
+			</when>
+		</choose>
+	</if>
+	<if test="searchCategory != null and searchCategory !=''">
+		and board_category = #{searchCategory}
+	</if>
+</sql>
+
+<sql id="freeBoardSearch">
+
+	<if test="boardCode != null and boardCode !=''">
+		<choose>
+			<when test="boardCode=='B-01'">
+				and board_code LIKE '%' || 01 || '%'
+			</when>
+			<when test="boardCode=='B-02'">
+				and board_code LIKE '%' || 02 || '%'
+			</when>
+			<when test="boardCode=='B-03'">
+				and board_code LIKE '%' || 03 || '%'
+			</when>
+			<when test="boardCode=='B-04'">
+				and board_code LIKE '%' || 04 || '%'
+			</when>
+		</choose>
+	</if>
+	
+		<if test="searchWord != null and searchWord !=''">
+		<choose>
+			<when test='searchType=="T"'>
+				and UPPER(board_title) like '%' || UPPER(#{searchWord}) || '%'
+			</when>
+			<when test='searchType=="W"'>
+				and mem_no like '%' || #{searchWord} || '%'
+			</when>
+			<when test='searchType=="C"'>
+				and UPPER(board_content) like '%' || UPPER(#{searchWord}) || '%'
+			</when>
+		</choose>
+	</if>
+	<if test="searchCategory != null and searchCategory !=''">
+		and board_category = #{searchCategory}
+	</if>
+</sql>
+	
+<select id="getBoardHeartList" parameterType="com.bteam.proj.board.vo.BoardSearchVO" resultType="com.bteam.proj.board.vo.BoardVO">
+	SELECT
+	    D.*
+	FROM
+	    (SELECT
+	          ROWNUM AS RNUM
+	        , C.*
+	    FROM
+			(SELECT 
+			      a.board_no as board_no
+			    , a.board_title as board_title
+			    , a.board_content as board_content
+			    , TO_CHAR(a.board_date, 'YYYY.MM.DD') AS board_date
+			    , a.board_del_yn as board_del_yn
+			    , a.board_hit as board_hit
+			    , a.board_code as board_code
+			    , a.board_category as board_category
+			    , a.mem_no as mem_no
+			    , COUNT(b.heart_cnt) as board_like
+			 FROM BOARDS a
+			 LEFT JOIN heart b ON a.board_no = b.board_no
+			 WHERE a.board_del_yn = 'N'
+				<include refid="freeBoardHeartSearch"></include>
+			 GROUP BY 
+			      a.board_no
+			    , a.board_title
+			    , a.board_content
+			    , TO_CHAR(a.board_date, 'YYYY.MM.DD')
+			    , a.board_del_yn
+			    , a.board_hit
+			    , a.board_category
+			    , a.mem_no
+			    , a.board_code
+			 ORDER BY a.board_no ) c
+	    ORDER BY RNUM DESC) d
+	    <include refid="common.sql.rnum"></include>
+</select>
+
+<select id="getBoardList" parameterType="com.bteam.proj.board.vo.BoardSearchVO" resultType="com.bteam.proj.board.vo.BoardVO">
+	SELECT
+	    d.*
+	FROM
+	    (SELECT
+	          ROWNUM AS RNUM
+	        , c.*
+	    FROM
+	        (SELECT
+	              board_no
+	            , board_title
+	            , board_category
+	            , mem_no
+	            , TO_CHAR(board_date, 'YYYY.MM.DD') AS board_date
+	            , board_like
+	            , board_hit
+	        FROM
+	            BOARDS A, BOARD_INFO B
+	        WHERE
+	            A.board_code = b.board_code
+	        AND
+	            board_del_yn = 'N'
+	            <include refid="freeBoardSearch"></include>
+	        ORDER BY 
+	            board_no) c
+	    ORDER BY RNUM DESC) d
+	    <include refid="common.sql.rnum"></include>
+</select>
+
+<insert id="writeBoard" parameterType="com.bteam.proj.board.vo.BoardVO">
+	INSERT INTO BOARDS (
+	      board_no
+	    , board_title
+	    , board_content
+	    , board_date
+	    , board_del_yn
+	    , board_like
+	    , board_hit
+	    , board_category
+	    , mem_no
+	    , board_code
+	    ) VALUES (
+	      board_seq.NEXTVAL
+	    , #{boardTitle}
+	    , #{boardContent}
+	    , SYSDATE
+	    , 'N'
+	    , 0
+	    , 0
+	    , #{boardCategory}
+	    , #{memNo}
+	    , (
+		    SELECT board_code
+		    FROM board_info
+		    WHERE board_category_name = #{boardCategory}
+		  )
+	)
+</insert>
+
+<select id="getBoard" resultType="com.bteam.proj.board.vo.BoardVO">
+	SELECT 
+	      board_no
+	    , board_title
+	    , board_content
+	    , board_hit
+	    , mem_no
+	    , TO_CHAR(board_date, 'YYYY.MM.DD') AS board_date
+	    , board_category
+	FROM 
+	    BOARDS
+	WHERE 
+	    board_no = #{boardNo}
+</select>
+
+<update id="editBoard" parameterType="com.bteam.proj.board.vo.BoardVO">
+	UPDATE 
+	    BOARDS
+	SET 
+	      board_title = #{boardTitle}
+	    , board_category = #{boardCategory}
+	    , board_content = #{boardContent}
+	    , board_date = SYSDATE
+	WHERE
+	    board_No = #{boardNo}
+</update>
+
+<update id="delBoard">
+	UPDATE 
+	    BOARDS
+	SET 
+	    board_del_yn = 'Y'
+	WHERE 
+	    board_no = #{boardNo}
+</update>
+
+<select id="getBoardInfo" resultType="com.bteam.proj.board.vo.BoardInfoVO">
+	SELECT
+	      board_code
+	    , board_category_name
+	FROM 
+	    BOARD_INFO
+</select>
+
+<select id="getBoardCategoryList" parameterType="com.bteam.proj.board.vo.BoardSearchVO" resultType="com.bteam.proj.board.vo.BoardVO">
+	SELECT
+	    D.*
+	FROM
+	    (SELECT
+	          ROWNUM AS RNUM
+	        , C.*
+	    FROM
+	        (SELECT
+	              board_no
+	            , board_title
+	            , board_category
+	            , mem_no
+	            , TO_CHAR(board_date, 'YYYY.MM.DD') AS board_date
+	            , board_like
+	            , board_hit
+	            , board_code
+	        FROM
+	            BOARDS
+	        WHERE
+	            board_del_yn = 'N'
+	            <include refid="freeBoardSearch"></include>
+	        ORDER BY 
+	            board_no ) c
+	    ORDER BY RNUM DESC) d
+	    <include refid="common.sql.rnum"></include>
+	    
+	    
+</select>
+	
+<select id="getTotalRowCount" resultType="int">
+	SELECT 
+		count(*)
+	FROM 
+		BOARDS
+	WHERE
+		board_del_yn = 'N'
+	<include refid="freeBoardSearch"></include>
+</select>
+	
+<update id="increaseHit" parameterType="String">
+	UPDATE 
+		BOARDS
+	SET
+		board_hit = board_hit+1
+	WHERE
+		board_no = #{boardNo}
+</update>
+
+<select id="getHeart" parameterType="com.bteam.proj.board.vo.HeartVO" resultType="com.bteam.proj.board.vo.HeartVO">
+		SELECT 
+		      mem_no
+		    , board_no
+		    , heart_cnt
+		    , heart_del_yn
+		    , heart_date
+		FROM
+		    HEART_SAVE
+		WHERE
+		    mem_no = #{memNo}
+		  AND
+		    board_no = #{boardNo}
+		  AND
+		    heart_del_yn = 'N';
+</select>
+
+<update id="updateState" parameterType="String">
+	UPDATE 
+		BOARD_SHARER
+	SET
+		sh_state = 'S'
+	WHERE
+		mem_no = #{memNo}
+	  AND
+		board_no = #{boardNo}
+</update>
+
+<insert id="insertState" parameterType="String">
+	INSERT INTO BOARD_SHARER (
+		  mem_no
+		, board_no
+		, sh_state
+		) VALUES (
+		  #{selectMemNo}
+		, #{boardNo}
+		, 'P'
+		)
+</insert>
+
+<select id="getBoardState" parameterType="String" resultType="com.bteam.proj.board.vo.BoardShareVO">
+	SELECT 
+		  mem_no
+		, board_no
+	    , sh_state
+	FROM board_sharer
+	WHERE mem_no = #{memNo}
+	  AND board_no = #{boardNo}
+</select>
+
+<select id="getSelectList" parameterType="String" resultType="com.bteam.proj.board.vo.BoardShareVO">
+	SELECT
+	      mem_no
+	    , board_no
+	    , sh_state
+	FROM
+	    board_sharer
+	WHERE 
+	    board_no = #{boardNo}
+	  AND
+	    sh_state = #{memNo}
+</select>
+
+<update id="updateIngTitle" parameterType="String">
+	UPDATE BOARDS
+	SET board_title = <![CDATA['[나눔중]' ||]]> board_title
+	WHERE board_no = #{boardNo}
+</update>
+
+<update id="updateSuccessTitle" parameterType="String">
+	<![CDATA[
+	UPDATE BOARDS
+	SET board_title = REPLACE(board_title, '[나눔중]', '[나눔완료]')
+	WHERE board_title LIKE '[나눔중]%'
+	]]>
+</update>
+
+<update id="updateBoardMileage">
+	UPDATE MEMBERS
+	SET mem_mileage = mem_mileage + 100
+	WHERE MEM_NO=(SELECT 
+	                      mem_no
+	                    FROM BOARDS
+	                    WHERE board_no=#{boardNo}
+	              )
+</update>
+
+<select id="getMyWriteList" parameterType="com.bteam.proj.board.vo.BoardSearchVO" resultType="com.bteam.proj.board.vo.BoardVO">
+	SELECT
+	    B.*
+	FROM
+	    (SELECT
+	          ROWNUM AS RNUM
+	        , A.*
+	    FROM
+	        (SELECT
+	              board_no
+	            , board_title
+	            , board_category
+	            , mem_no
+	            , TO_CHAR(board_date, 'YYYY.MM.DD') AS board_date
+	            , board_like
+	            , board_hit
+	        FROM
+	            BOARDS
+	        WHERE
+	            board_del_yn = 'N'
+			<if test="memNo != null and memNo !=''">
+			  AND mem_no = #{memNo}
+			</if>
+	        <include refid="freeBoardSearch"></include>
+	        ORDER BY 
+	            board_no) A
+	    ORDER BY RNUM DESC) B
+	    <include refid="common.sql.rnum"></include>
+</select>
+
+<select id="getMySaveList" parameterType="com.bteam.proj.board.vo.BoardSearchVO" resultType="com.bteam.proj.board.vo.BoardVO">
+	SELECT
+		d.*
+	FROM(SELECT
+		      ROWNUM as rnum
+		    , c.*
+		FROM(
+		
+		SELECT
+		
+		          b.board_no as board_no
+		        , board_title
+		        , board_category
+		        , a.mem_no
+		        , TO_CHAR(board_date, 'YYYY.MM.DD') AS board_date
+		        , board_like
+		        , board_hit
+		    FROM BOARDS a, SAVE b
+		    WHERE a.board_no = b.board_no
+		    
+			<if test="memNo != null and memNo !=''">
+			  AND b.mem_no = #{memNo}
+			</if>
+			
+			<if test="boardCode != null and boardCode !=''">
+				<choose>
+					<when test="boardCode=='B-01'">
+						and a.board_code LIKE '%' || 01 || '%'
+					</when>
+					<when test="boardCode=='B-02'">
+						and a.board_code LIKE '%' || 02 || '%'
+					</when>
+					<when test="boardCode=='B-03'">
+						and a.board_code LIKE '%' || 03 || '%'
+					</when>
+					<when test="boardCode=='B-04'">
+						and a.board_code LIKE '%' || 04 || '%'
+					</when>
+				</choose>
+			</if>
+			
+			<if test="searchWord != null and searchWord !=''">
+				<choose>
+					<when test='searchType=="T"'>
+						and UPPER(a.board_title) like '%' || UPPER(#{searchWord}) || '%'
+					</when>
+					<when test='searchType=="W"'>
+						and a.mem_no like '%' || #{searchWord} || '%'
+					</when>
+					<when test='searchType=="C"'>
+						and UPPER(a.board_content) like '%' || UPPER(#{searchWord}) || '%'
+					</when>
+				</choose>
+			</if>
+			
+			<if test="searchCategory != null and searchCategory !=''">
+				and a.board_category = #{searchCategory}
+			</if>
+			
+		    ORDER BY b.board_no) c
+		    
+		ORDER BY RNUM DESC) d
+		
+		<include refid="common.sql.rnum"></include>
+</select>
+
+<select id="getMyWriteTotalRowCount" resultType="int">
+	SELECT 
+		count(*)
+	FROM 
+		BOARDS
+	WHERE
+		board_del_yn = 'N'
+	<if test="memNo != null and memNo !=''">
+	  AND mem_no = #{memNo}
+	</if>
+	<include refid="freeBoardSearch"></include>
+</select>
+
+<select id="getMySaveTotalRowCount" resultType="int">
+	SELECT count(*)
+	FROM BOARDS a, SAVE b
+	WHERE a.board_no = b.board_no
+	<if test="memNo != null and memNo !=''">
+	  AND b.mem_no = #{memNo}
+	</if>
+	<include refid="freeBoardHeartSearch"></include>
+</select>
+
+<select id="getBoardWriter" resultType="String">
+	SELECT mem_no
+	FROM BOARDS
+	WHERE board_no = #{boardNo}
+</select>
+
+</mapper>

@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.bteam.proj.chart.dao.IChartDAO">
+
+	<select id="getLikeRankList" resultType="com.bteam.proj.chart.vo.ChartVO">
+	
+<!-- 		SELECT
+		      ROWNUM AS rnum
+		    , a.*
+		FROM(SELECT 
+		          DISTINCT mem_no
+		        , board_like
+		        , board_date
+		    FROM BOARDS
+		    ORDER BY board_like desc) a
+		    <![CDATA[
+				WHERE rownum <= 3
+			]]>
+		  AND TO_CHAR(board_date, 'MM') = TO_CHAR(SYSDATE, 'MM') -->
+		  
+		SELECT
+		    ROWNUM as rnum,
+		    d.*
+		FROM (
+		    SELECT 
+		        a.mem_no,
+		        mem_name,
+		        board_like,
+		        board_date,
+		        ROW_NUMBER() OVER ( PARTITION BY mem_name ORDER BY board_like DESC) as rn,
+		        c.atch_no
+		    FROM boards a
+		    JOIN members b ON a.mem_no = b.mem_no
+		    LEFT OUTER JOIN attach c ON a.mem_no = c.atch_parent_no
+		    WHERE substr(board_date, 4, 2) = substr(SYSDATE, 4, 2)
+		    ORDER BY BOARD_LIKE DESC
+		) d
+		WHERE rn = 1
+		  AND <![CDATA[ rownum <= 3 ]]>
+	</select>
+	
+	<!-- 카풀 랭크 -->
+	<select id="getCarPoolRankList" resultType="com.bteam.proj.chart.vo.ChartVO">
+		SELECT
+		     ROWNUM AS RNUM
+		    , c.mem_no
+		    , c.mem_name
+		    , c.cp_cnt
+		FROM(SELECT
+		          count(*) as cp_cnt
+		        , a.mem_no
+		        , b.mem_name
+		        , ROW_NUMBER() OVER ( PARTITION BY b.mem_name ORDER BY count(*) desc) as rn
+		     FROM CARPOOL A, MEMBERS B
+		     WHERE A.mem_no = B.mem_no
+		       AND cp_state = 'S'
+		       AND substr(cp_run_date, 4, 2) = substr(SYSDATE, 4, 2)
+		     GROUP BY a.mem_no, b.mem_name
+		     ORDER BY cp_cnt DESC) c
+		WHERE rn = 1
+		  AND <![CDATA[ rownum <= 3 ]]>
+	</select>
+	
+	<!-- 나눔 랭크 -->
+	<select id="getShareRankList" resultType="com.bteam.proj.chart.vo.ChartVO">
+		SELECT 
+		      ROWNUM as rnum
+		    , e.sh_cnt
+		    , e.mem_name
+		FROM(SELECT
+		         COUNT(*) as sh_cnt
+		         ,d.mem_name
+		    FROM(SELECT
+		              a.board_no
+		            , c.mem_name
+		            , COUNT(*)
+		        FROM BOARDS a, board_sharer b, members c
+		        WHERE a.board_no = b.board_no
+		          AND a.mem_no = c.mem_no
+		          AND substr(a.board_date, 4, 2) = substr(SYSDATE, 4, 2)
+		        GROUP BY a.board_no, c.mem_name
+		        having count(*) = 2) d
+		    GROUP BY d.mem_name
+		    ORDER BY sh_cnt desc)e
+		WHERE <![CDATA[ rownum <= 3 ]]>
+	</select>
+	
+	<!-- 영업실적 랭크 -->
+	<select id="getSaleRankList" resultType="com.bteam.proj.chart.vo.ChartVO">
+<!-- 		SELECT
+		      ROWNUM as rnum
+		    , a.*
+		FROM(SELECT
+		          mem_no
+		        , sale_cnt
+		        , sale_date
+		    FROM SALES
+		    WHERE SUBSTR(sale_date, 4, 2) = SUBSTR(SYSDATE, 4, 2)
+		    ORDER BY sale_cnt desc
+		    ) a
+	    <![CDATA[
+		WHERE ROWNUM <= 3
+		]]> -->
+	SELECT 
+	      ROWNUM as rnum
+	    , c.mem_name
+	    , c.sale_cnt
+	FROM(SELECT
+	           mem_name
+	         , sale_cnt
+	         , sale_date
+	         , ROW_NUMBER() OVER ( PARTITION BY mem_name ORDER BY sale_cnt desc) as rn
+	     FROM SALES a, MEMBERS b
+	     WHERE a.mem_no = b. mem_no
+	       AND SUBSTR(sale_date, 4, 2) = SUBSTR(SYSDATE, 4, 2)
+	       ORDER BY sale_cnt desc) c
+	WHERE RN = 1
+	  AND <![CDATA[ rownum <= 3 ]]>
+	</select>
+	
+	<select id="getLikeRanker" resultType="com.bteam.proj.chart.vo.ChartVO">
+		SELECT *
+		FROM (
+		    SELECT
+		        a.mem_no,
+		        b.mem_name,
+		        board_like,
+		        c.atch_no
+		    FROM boards a
+		    JOIN members b ON a.mem_no = b.mem_no
+		    LEFT OUTER JOIN attach c ON a.mem_no = c.atch_parent_no
+		    ORDER BY board_like DESC
+		)
+		WHERE ROWNUM = 1
+	</select>
+	
+	<select id="getSaleRanker" resultType="com.bteam.proj.chart.vo.ChartVO">
+		SELECT *
+		FROM (
+		    SELECT
+		        a.mem_no,
+		        b.mem_name,
+		        sale_cnt,
+		        c.atch_no
+		    FROM sales a
+		    JOIN members b ON a.mem_no = b.mem_no
+		    LEFT OUTER JOIN attach c ON a.mem_no = c.atch_parent_no
+		    WHERE substr(sale_date, 4,2) = substr(sysdate, 4,2)
+		    ORDER BY sale_cnt DESC
+		)
+		WHERE ROWNUM = 1
+	</select>
+	
+	<select id="getCarpoolRanker" resultType="com.bteam.proj.chart.vo.ChartVO">
+		SELECT *
+		FROM (
+		    SELECT
+		          count(*) as cp_cnt
+		        , a.mem_no
+		        , b.mem_name
+		        , c.atch_no
+		    FROM carpool a
+		    JOIN members b ON a.mem_no = b.mem_no
+		    LEFT OUTER JOIN attach c ON a.mem_no = c.atch_parent_no
+		    WHERE substr(cp_run_date, 4,2) = substr(sysdate, 4,2)
+		      AND cp_state = 'S'
+		    GROUP BY a.mem_no, b.mem_name, c.atch_no
+		    ORDER BY cp_cnt DESC
+		)
+		WHERE ROWNUM = 1
+	</select>
+	
+	<select id="getShareRanker" resultType="com.bteam.proj.chart.vo.ChartVO">
+		SELECT 
+		      f.sh_cnt
+		    , f.mem_name
+		    , f.mem_no
+		    , f.atch_no
+		FROM(SELECT
+		         COUNT(*) as sh_cnt
+		         ,e.mem_name
+		         ,e.mem_no
+		         ,e.atch_no
+		    FROM(SELECT
+		              a.board_no
+		            , c.mem_name
+		            , a.mem_no
+		            , d.atch_no
+		            , COUNT(*)
+		        FROM BOARDS a, board_sharer b, members c, attach d
+		        WHERE a.board_no = b.board_no
+		          AND a.mem_no = c.mem_no
+		          AND a.mem_no = d.atch_parent_no
+		          AND substr(a.board_date, 4, 2) = substr(SYSDATE, 4, 2)
+		        GROUP BY a.board_no, c.mem_name, a.mem_no, d.atch_no
+		        having count(*) = 2) e
+		    GROUP BY e.mem_name, e.mem_no, e.atch_no
+		    ORDER BY sh_cnt desc, atch_no desc) f
+		WHERE ROWNUM = 1
+	</select>
+</mapper>

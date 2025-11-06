@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.bteam.proj.code.dao.ICommCodeDAO">
+ 
+<select id="getCodeListByParent" parameterType="string" resultType="com.bteam.proj.code.vo.CodeVO">
+
+	select 
+		comm_cd
+		,comm_nm
+		,comm_parent
+		,comm_ord
+	from comm_code
+	where comm_parent = #{commParent}
+	
+</select>
+
+<select id="getCodeListByParentTeam" resultType="com.bteam.proj.code.vo.CodeVO">
+
+	select 
+		comm_cd
+		,comm_nm
+		,comm_parent
+		,comm_ord
+	from comm_code
+	where comm_cd LIKE 'TM1%'
+    OR comm_cd LIKE 'TM2%'
+    OR comm_cd LIKE 'TM3%'
+    
+</select>
+
+</mapper>

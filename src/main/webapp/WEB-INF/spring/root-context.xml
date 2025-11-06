@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-5.3.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+		
+	<!-- Oracle DB에 접속할 수 있는 URL과 계정 정보들을 알려준다. -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+	  <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"></property>
+	  <property name="url" value="jdbc:oracle:thin:@192.168.1.65:1521:xe"></property>
+	  <property name="username" value="bteam"></property>
+	  <property name="password" value="bteam"></property>
+	</bean>
+	
+	<!-- Mybatis 관련 설정파일 및 Dao 객체와 매핑되는 쿼리문(.xml)들의 경로를 알려준다. -->
+ 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	    <property name="dataSource" ref="dataSource"></property>
+	    <property name="mapperLocations" value="/WEB-INF/classes/mybatis/mapper/*.xml" /> 
+	    <property name="configLocation" value="/WEB-INF/classes/mybatis/mybatis-config.xml"  />
+	</bean>
+	 
+	<!-- @Mapper 어노테이션이 붙은 Dao 객체를 스캔할 수 있도록 함 -->
+	<mybatis-spring:scan base-package="com.bteam.proj" annotation="org.apache.ibatis.annotations.Mapper"/>
+	
+	<util:properties id="util" location="/WEB-INF/classes/config/appConfig.properties"/>
+	
+	<bean id="mailSender"	class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="#{util['mail.host']}" />   
+		<property name="port" value="#{util['mail.port']}" />
+		<property name="username" value="#{util['mail.username']}" />
+		<property name="password" value="#{util['mail.password']}" />
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.transport.protocol">#{util['mail.javaMailProperties.protocol']}</prop>
+				<prop key="mail.smtp.auth">#{util['mail.javaMailProperties.auth']}</prop>
+				<prop key="mail.smtp.starttls.enable">#{util['mail.javaMailProperties.enable']}</prop>
+				<prop key="mail.debug">#{util['mail.javaMailProperties.debug']}</prop>
+				<prop key="mail.smtp.ssl.trust">#{util['mail.javaMailProperties.ssl.trust']}</prop>
+				<prop key="mail.smtp.ssl.protocols">#{util['mail.javaMailProperties.ssl.protocols']}</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="customUserDetailsService" class="com.bteam.proj.common.security.CustomUserDetailsService"></bean>
+	 
+	<!-- <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"></bean> -->
+
+	<!--
+	<security:http pattern="/img/**" security="none"/>
+	<security:http pattern="/cssssssss/**" security="none"/>
+	<security:http pattern="/member/joinView" security="none"/>
+	<security:http pattern="/member/profilePhoto" security="none"/>
+	-->
+	
+<!-- 	<security:http>
+		<security:intercept-url pattern="/member/memberRole" access="hasAuthority('AD')" />
+		<security:intercept-url pattern="/member/memberRoleUpdate" access="hasAuthority('AD')" />
+		<security:intercept-url pattern="/member/memberList" access="hasAnyAuthority('EM','DI','PR','AD')" />
+		<security:intercept-url pattern="/member/memberMultiDelete" access="hasAnyAuthority('DI','PR','AD')" />
+		<security:intercept-url pattern="/member/**" access="hasAuthority('ME')" />
+		<security:intercept-url pattern="/free/**" access="hasAnyAuthority('ST','AM','MA','SM','EM','DI','PR','AD')" />
+		<security:intercept-url pattern="/home" access="hasAuthority('ME')" /> 
+		<security:intercept-url pattern="/**" access="permitAll" />
+		
+		<security:form-login
+			login-page="/proj"
+			login-processing-url="/login/loginCheck"
+			default-target-url="/home"
+			username-parameter="memNo"
+			password-parameter="memPass"
+			authentication-failure-url="/login/fail"
+		/>
+		<security:logout 
+			logout-url="/logout" 
+			logout-success-url="/proj" 
+			delete-cookies="JSESSIONID"
+		/>
+		<security:csrf disabled="true" />
+		
+		스프링 시큐리티는 기본적으로 iframe을 차단합니다. 따라서 iframe 차단 해제하기 
+		<security:headers>
+			<security:frame-options disabled="true"/>
+		</security:headers>
+	</security:http>  -->
+	
+<!-- 	<security:authentication-manager>
+		<security:authentication-provider user-service-ref="customUserDetailsService">
+			<security:password-encoder ref="passwordEncoder" />
+		</security:authentication-provider>
+	</security:authentication-manager> -->
+	
+</beans>

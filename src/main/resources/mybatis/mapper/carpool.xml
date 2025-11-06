@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.bteam.proj.carpool.dao.ICarPoolDAO">
+	
+	<sql id="carPoolSearch">
+ 		<if test="searchWord != null and searchWord !=''">
+			<choose>
+				<when test='searchCategory=="L"'>
+					and cp_loc like '%' || #{searchWord} || '%'	
+				</when>
+				<when test='searchCategory=="D"'>
+					and driver like '%' || #{searchWord} || '%'
+				</when>
+				<when test='searchCategory=="N"'>
+					and car_no like '%' || #{searchWord} || '%'
+				</when>
+			</choose>
+		</if>
+		<if test="startDate != null or endDate != null">
+			<if test="startDate !='' or endDate != ''">
+				<choose>
+					<when test="startDate != '' and endDate ==''">
+						and TO_DATE(#{startDate} || ' 00:00:00', 'YYYY-MM-DD HH24:MI:SS')<![CDATA[ <= ]]> cp_run_date
+					</when>
+					<when test="startDate == '' and endDate !=''">
+						and TO_DATE(#{endDate} || ' 23:59:59' , 'YYYY-MM-DD HH24:MI:SS')<![CDATA[ >= ]]> cp_run_date
+					</when>
+					<when test="startDate != '' and endDate !=''">
+						and TO_DATE(#{startDate} || ' 00:00:00', 'YYYY-MM-DD HH24:MI:SS')<![CDATA[ <= ]]> cp_run_date
+						and TO_DATE(#{endDate} || ' 23:59:59' , 'YYYY-MM-DD HH24:MI:SS')<![CDATA[ >= ]]> cp_run_date
+					</when>
+				</choose>
+			</if>
+		</if>
+		<if test="cpGoOut != null and cpGoOut !=''">
+					and cp_go_out = #{cpGoOut}	
+		</if>
+		<if test="cpState != null and cpState !=''">
+					and cp_state = #{cpState}	
+		</if>
+	</sql>
+	
+	<sql id="carPoolRNum">
+	<!-- where rnum between #{lastRow} and #{firstRow} -->
+	
+	<![CDATA[
+		where cp_r_num >= #{lastRow}
+		and cp_r_num <= #{firstRow}
+	]]>
+	
+	</sql>
+	
+	
+	<select id="getCarPoolList" resultType="CarPoolVO">
+		SELECT 
+		     cp_no
+		    , cp_total_pass
+		    , cp_take_pass
+		    , cp_run_date
+		    , cp_arr_time
+		    , car_no
+		    , cp_loc
+		    , cp_road_loc
+		    , cp_loc_lat
+		    , cp_loc_lng
+		    , cp_distance
+		    , mem_no
+		    , cp_reg_date
+		    , cp_state
+		    , cp_go_out
+		FROM carpool
+		WHERE sysdate <![CDATA[ < ]]> cp_run_date
+		ORDER BY cp_reg_date DESC
+	</select>
+	
+	
+
+	<select id="getCarInfo" parameterType="String" resultType="CarVO">
+		SELECT
+			car_no
+		    , car_model
+		    , car_color
+		FROM cars
+		WHERE car_no = #{carNo}
+	</select>
+	
+	<select id="getAdminMember" parameterType="String" resultType="MemberVO">
+		SELECT
+			MEM_NO
+			,MEM_NAME
+			,MEM_PHONE
+			,TRUNC(MONTHS_BETWEEN(sysdate, mem_birthday)/12)+1 as mem_age
+			,MEM_GENDER
+			,MEM_ADD
+			,MEM_MILEAGE
+			,ROLE_CODE
+			,MEM_TEAM
+			,MEM_JOIN_DATE
+			,MEM_DEL_DATE
+			,MEM_DEL_YN
+		FROM members
+		WHERE mem_no = #{memNo}
+	</select>
+	
+	<select id="getDriver" parameterType="String" resultType="String">
+		SELECT
+			MEM_NAME
+		FROM members
+		WHERE mem_no = #{memNo}
+	</select>
+	
+	<select id="getCarPool" parameterType="String" resultType="CarPoolVO">
+		SELECT 
+		     cp_no
+		    , cp_total_pass
+		    , cp_take_pass
+		    , cp_run_date
+		    , cp_arr_time
+		    , car_no
+		    , cp_loc
+		    , cp_road_loc
+		    , cp_loc_lat
+		    , cp_loc_lng
+		    , cp_distance
+		    , mem_no
+		    , cp_reg_date
+		    , cp_state
+		    , cp_go_out
+		FROM carpool
+		WHERE cp_no = #{cpNo}
+		AND sysdate <![CDATA[ < ]]> cp_run_date
+	</select>
+	
+	<select id="getCarPoolModal" parameterType="String" resultType="CarPoolVO">
+		SELECT 
+		     cp_no
+		    , cp_total_pass
+		    , cp_take_pass
+		    , cp_run_date
+		    , cp_arr_time
+		    , car_no
+		    , cp_loc
+		    , cp_road_loc
+		    , cp_loc_lat
+		    , cp_loc_lng
+		    , cp_distance
+		    , mem_no
+		    , cp_reg_date
+		    , cp_state
+		    , cp_go_out
+		FROM carpool
+		WHERE cp_no = #{cpNo}
+	</select>
+	
+	<select id="getCarPoolLog" parameterType="String" resultType="CarPoolVO">
+		SELECT 
+		     cp_no
+		    , cp_total_pass
+		    , cp_take_pass
+		    , cp_run_date
+		    , cp_arr_time
+		    , car_no
+		    , cp_loc
+		    , cp_road_loc
+		    , cp_loc_lat
+		    , cp_loc_lng
+		    , cp_distance
+		    , mem_no
+		    , cp_reg_date
+		    , cp_state
+		    , cp_go_out
+		FROM carpool
+		WHERE cp_no = #{cpNo}
+		AND sysdate <![CDATA[ >= ]]> cp_run_date
+	</select>
+	
+	<select id="getCarPoolLogList" parameterType="CarPoolSearchVO" resultType="CarPoolVO">
+		SELECT
+		    c.*
+		FROM
+		(SELECT
+			ROWNUM as cp_r_num
+			, b.*
+		FROM 
+		(SELECT *
+		FROM
+		(SELECT 
+		     cp_no
+		    , cp_total_pass
+		    , cp_take_pass
+		    , cp_run_date
+		    , cp_arr_time
+		    , car_no
+		    , cp_loc
+		    , cp_road_loc
+		    , cp_loc_lat
+		    , cp_loc_lng
+		    , cp_distance
+		    , mem_no
+		    , (
+		        SELECT mem_name
+		        FROM members
+		        WHERE mem_no = a.mem_no
+		    ) as driver
+		    , cp_reg_date
+		    , cp_state
+		    , cp_go_out
+		    , (
+		        SELECT cp_state
+		        FROM carpool_passenger
+		        WHERE mem_no = #{memNo}
+		        AND cp_no = a.cp_no
+		    ) as cp_state_pass
+		FROM carpool a
+		WHERE cp_no IN (
+		SELECT
+		    cp_no
+		FROM(SELECT
+		        cp_no
+		        , TO_NUMBER(SUBSTR(cp_no, 9)) as num
+		    FROM carpool_passenger
+		    WHERE mem_no = #{memNo}
+		ORDER BY num desc))
+		AND sysdate >= cp_run_date)
+		WHERE 1=1
+		<include refid="carPoolSearch"></include>
+		ORDER BY cp_run_date) b
+		ORDER BY cp_r_num desc) c
+		<include refid="carPoolRNum"></include>
+		
+	</select>
+	
+	<select id="getCarPoolLogListAdmin" parameterType="CarPoolSearchVO" resultType="CarPoolVO">
+		SELECT
+		    c.*
+		FROM
+		(SELECT
+			ROWNUM as cp_r_num
+			, b.*
+		FROM 
+		(SELECT *
+		FROM
+		(SELECT 
+		     cp_no
+		    , cp_total_pass
+		    , cp_take_pass
+		    , cp_run_date
+		    , cp_arr_time
+		    , car_no
+		    , cp_loc
+		    , cp_road_loc
+		    , cp_loc_lat
+		    , cp_loc_lng
+		    , cp_distance
+		    , mem_no
+		    , (
+		        SELECT mem_name
+		        FROM members
+		        WHERE mem_no = a.mem_no
+		    ) as driver
+		    , cp_reg_date
+		    , cp_state
+		    , cp_go_out
+		FROM carpool a
+		WHERE cp_no IN (
+		SELECT
+		    cp_no
+		FROM(SELECT
+		        cp_no
+		        , TO_NUMBER(SUBSTR(cp_no, 9)) as num
+		    FROM carpool_passenger
+<!-- 		    WHERE mem_no = #{memNo} -->
+		ORDER BY num desc))
+		AND sysdate >= cp_run_date)
+		WHERE 1=1
+		<include refid="carPoolSearch"></include>
+		ORDER BY cp_run_date) b
+		ORDER BY cp_r_num desc) c
+		<include refid="carPoolRNum"></include>
+		
+	</select>
+	
+	<select id="getTotalCarPoolRowCount" parameterType="CarPoolSearchVO" resultType="int">
+		SELECT 
+		    COUNT(*)
+		FROM (
+			SELECT  
+					cp_no
+		        , cp_total_pass
+		        , cp_take_pass
+		        , cp_run_date
+		        , cp_arr_time
+		        , car_no
+		        , cp_loc
+		        , cp_road_loc
+		        , cp_loc_lat
+		        , cp_loc_lng
+		        , cp_distance
+		        , mem_no
+		        , cp_reg_date
+		        , cp_state
+		        , cp_go_out
+				, (
+		        SELECT mem_name
+		        FROM members
+		        WHERE mem_no = b.mem_no
+		   		 ) as driver
+			FROM carpool b) a
+		WHERE cp_no IN (
+		SELECT
+		    cp_no
+		FROM(SELECT
+		        cp_no
+		        , TO_NUMBER(SUBSTR(cp_no, 9)) as num
+		    FROM carpool_passenger
+		    WHERE mem_no = #{memNo}
+		ORDER BY num desc))
+		AND sysdate >= cp_run_date
+		<include refid="carPoolSearch"></include>
+	</select>
+	
+	<select id="getTotalCarPoolRowCountAdmin" parameterType="CarPoolSearchVO" resultType="int">
+		SELECT 
+		    COUNT(*)
+		FROM (
+			SELECT  
+					cp_no
+		        , cp_total_pass
+		        , cp_take_pass
+		        , cp_run_date
+		        , cp_arr_time
+		        , car_no
+		        , cp_loc
+		        , cp_road_loc
+		        , cp_loc_lat
+		        , cp_loc_lng
+		        , cp_distance
+		        , mem_no
+		        , cp_reg_date
+		        , cp_state
+		        , cp_go_out
+				, (
+		        SELECT mem_name
+		        FROM members
+		        WHERE mem_no = b.mem_no
+		   		 ) as driver
+			FROM carpool b) a
+		WHERE cp_no IN (
+		SELECT
+		    cp_no
+		FROM(SELECT
+		        cp_no
+		        , TO_NUMBER(SUBSTR(cp_no, 9)) as num
+		    FROM carpool_passenger
+<!-- 		    WHERE mem_no = #{memNo} -->
+		ORDER BY num desc))
+		AND sysdate >= cp_run_date
+		<include refid="carPoolSearch"></include>
+	</select>
+	
+	<select id="getPassList" parameterType="String" resultType="MemberVO">
+		SELECT
+		    a.mem_no
+		    , a.mem_name
+		    , TRUNC(MONTHS_BETWEEN(sysdate, a.mem_birthday)/12)+1 as mem_age
+		    , a.mem_gender
+		    , a.mem_phone
+	    	, (SELECT comm_nm
+	    		FROM comm_code d
+	    		WHERE d.comm_cd = a.mem_team) as mem_team
+		FROM members a, carpool_passenger b
+		WHERE a.mem_no = b.mem_no
+		AND b.cp_no = #{cpNo}
+	</select>
+	
+	<insert id="carPoolApply" parameterType="String">
+		INSERT INTO carpool_passenger(
+			mem_no
+			, cp_no
+		)
+		VALUES(
+		    #{memNo}
+		    , #{cpNo}
+		)
+	</insert>
+	
+	<update id="takePassPlus" parameterType="String">
+		UPDATE carpool SET
+		    cp_take_pass = cp_take_pass +1
+		WHERE cp_no = #{cpNo}
+	</update>
+	
+	<update id="takePassMinus" parameterType="String">
+		UPDATE carpool SET
+		    cp_take_pass = cp_take_pass -1
+		WHERE cp_no = #{cpNo}
+	</update>
+	
+	<select id="myApplyList" parameterType="String" resultType="String">
+		SELECT
+		    cp_no
+		FROM(SELECT
+		        cp_no
+		        , TO_NUMBER(SUBSTR(cp_no, 9)) as num
+		    FROM carpool_passenger
+		    WHERE mem_no = #{memNo})
+		ORDER BY num desc
+	</select>
+		
+	<delete id="carPoolCancel" parameterType="String">
+		DELETE FROM carpool_passenger
+		WHERE cp_no = #{cpNo}
+		AND mem_no = #{memNo}
+	</delete>
+	
+	<delete id="carPoolAllCancel" parameterType="String">
+		DELETE FROM carpool_passenger
+		WHERE cp_no = #{cpNo}
+	</delete>
+	
+	<delete id="carPoolDelete" parameterType="String">
+		DELETE FROM carpool
+		WHERE cp_no = #{cpNo}
+	</delete>
+	
+	<select id="getCarPoolListSearch" parameterType="String" resultType="CarPoolVO">
+		
+		SELECT
+			cp_no
+		    , cp_total_pass
+		    , cp_take_pass
+		    , cp_run_date
+		    , cp_arr_time
+		    , car_no
+		    , cp_loc
+		    , cp_road_loc
+		    , cp_loc_lat
+		    , cp_loc_lng
+		    , cp_distance
+		    , mem_no
+		    , cp_reg_date
+		    , cp_state
+		    , cp_go_out
+		FROM(SELECT *
+		FROM carpool
+		WHERE sysdate <![CDATA[ < ]]> cp_run_date)
+		WHERE cp_loc LIKE '%' || #{word} || '%'
+		OR cp_road_loc LIKE '%' || #{word} || '%'
+		ORDER BY cp_reg_date DESC
+	</select>
+	
+	<select id="getCarList" parameterType="String" resultType="CarVO">
+		SELECT 
+		    car_no
+		    , car_model
+		    , car_color
+		    , mem_no
+		FROM cars
+		WHERE mem_no = #{memNo}
+	</select>
+	
+	<insert id="carPoolCreate" parameterType="CarPoolVO">
+		
+		INSERT INTO carpool(
+		    cp_no
+		    , cp_total_pass
+		    , cp_take_pass
+		    , cp_run_date
+		    , cp_arr_time
+		    , car_no
+		    , cp_loc
+		    , cp_road_loc
+		    , cp_loc_lat
+		    , cp_loc_lng
+		    , cp_distance
+		    , mem_no
+		    , cp_reg_date
+		    , cp_state
+		    , cp_go_out
+		)VALUES(
+		    'CP-' || TO_CHAR(SYSDATE, 'YYYY') || '-' || LPAD(seq_carpool.nextval, 5, '0')
+		    , #{cpTotalPass}
+		    , #{cpTakePass}
+		    , TO_DATE(#{cpRunDate} || ' ' || #{cpRunTime}, 'YYYY-MM-DD HH24:MI')
+		    , #{cpArrTime}
+		    , #{carNo}
+		    , #{cpLoc}
+		    , #{cpRoadLoc}
+		    , #{cpLocLat}
+		    , #{cpLocLng}
+		    , #{cpDistance}
+		    , #{memNo}
+		    , sysdate
+		    , 'P'
+		    , #{cpGoOut}
+		)
+	</insert>
+	
+	<insert id="carPoolCreatePass" parameterType="String">
+		INSERT INTO carpool_passenger(
+			cp_no
+			, mem_no
+		)VALUES(
+			#{cpNo}
+			, #{memNo}
+		)
+	</insert>
+
+	<select id="getCurCpNo" parameterType="String" resultType="String">
+		SELECT 
+		    cp_no
+		FROM(
+		SELECT 
+		    cp_no
+		FROM carpool
+		WHERE mem_no = #{memNo}
+		ORDER BY cp_reg_date desc)
+		WHERE ROWNUM = 1
+	</select>
+	
+	<update id="carPoolStateChange" parameterType="String">
+		UPDATE carpool
+		SET cp_state = #{cpState}
+		WHERE cp_no = #{cpNo}
+	</update>
+	
+	<update id="carPoolStateChangePass" parameterType="String">
+		UPDATE carpool_passenger
+		SET cp_state = #{cpState}
+		WHERE cp_no = #{cpNo}
+		AND mem_no = #{memNo}
+	</update>
+	
+	<select id="getCarPoolStatePass" parameterType="String" resultType="String">
+		SELECT 
+			cp_state
+		FROM carpool_passenger
+		WHERE cp_no = #{cpNo}
+		AND mem_no = #{memNo}
+	</select>
+	
+	<select id="carPoolPassCountS" parameterType="String" resultType="int">
+		SELECT
+ 		   COUNT(*)		
+		FROM carpool_passenger
+		WHERE cp_no = #{cpNo}
+		AND cp_state = 'S'
+	</select>
+	<select id="carPoolGetTakePass" parameterType="String" resultType="int">
+		SELECT
+			cp_take_pass
+		FROM carpool
+		WHERE cp_no = #{cpNo}
+	</select>
+	
+	<select id="getCarPoolListAdmin" resultType="CarPoolVO">
+		SELECT 
+			     cp_no
+			    , cp_total_pass
+			    , cp_take_pass
+			    , cp_run_date
+			    , cp_arr_time
+			    , car_no
+			    , cp_loc
+			    , cp_road_loc
+			    , cp_loc_lat
+			    , cp_loc_lng
+			    , cp_distance
+			    , mem_no
+			    , cp_reg_date
+			    , cp_state
+			    , cp_go_out
+			FROM carpool
+			WHERE sysdate <![CDATA[ < ]]> cp_run_date
+	</select>
+</mapper>

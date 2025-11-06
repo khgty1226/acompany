@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.bteam.proj.mileageshop.dao.IMileageShopDAO">
+
+	<sql id="shopSearch">
+		<if test="(searchCategory % 100) != 0">
+			and cate_code = #{searchCategory}
+		</if>
+		<if test="(searchCategory % 100) == 0">
+			<choose>
+				<when test="searchCategory == 0">
+				</when>
+				<otherwise>
+					and cate_code <![CDATA[ > ]]> #{searchCategory}
+					and cate_code <![CDATA[ < ]]> (#{searchCategory}+200)
+				</otherwise>
+			</choose>
+		</if>
+		<if test="searchWord != null and searchWord !=''">
+			and prod_name like '%' || #{searchWord} || '%'	
+		</if>
+	</sql>
+	
+	<sql id="logSearch">
+ 		
+		<if test="searchVO.startDate != null or searchVO.endDate != null">
+			<if test="searchVO.startDate !='' or searchVO.endDate != ''">
+				<choose>
+					<when test="searchVO.startDate != '' and searchVO.endDate ==''">
+						and TO_DATE(#{searchVO.startDate} || ' 00:00:00', 'YYYY-MM-DD HH24:MI:SS')<![CDATA[ <= ]]> order_date
+					</when>
+					<when test="searchVO.startDate == '' and searchVO.endDate !=''">
+						and TO_DATE(#{searchVO.endDate} || ' 23:59:59' , 'YYYY-MM-DD HH24:MI:SS')<![CDATA[ >= ]]> order_date
+					</when>
+					<when test="searchVO.startDate != '' and searchVO.endDate !=''">
+						and TO_DATE(#{searchVO.startDate} || ' 00:00:00', 'YYYY-MM-DD HH24:MI:SS')<![CDATA[ <= ]]> order_date
+						and TO_DATE(#{searchVO.endDate} || ' 23:59:59' , 'YYYY-MM-DD HH24:MI:SS')<![CDATA[ >= ]]> order_date
+					</when>
+				</choose>
+			</if>
+		</if>
+		
+		<if test="searchVO.searchState != null and searchVO.searchState !=''">
+					and order_state = #{searchVO.searchState}	
+		</if>
+	</sql>
+	
+	<sql id="shopOrder">
+	<choose>
+		<when test='searchOrder == "B"'>
+			ORDER BY prod_sale_count ASC	
+		</when>
+		<when test='searchOrder == "H"'>
+			ORDER BY prod_price ASC
+		</when>
+		<when test='searchOrder == "L"'>
+			ORDER BY prod_price DESC
+		</when>
+	</choose>
+	</sql>
+	
+	<sql id="shopRNum">
+	
+	<![CDATA[
+		where prod_r_num >= #{lastRow}
+		and prod_r_num <= #{firstRow}
+	]]>
+	
+	</sql>
+
+	<sql id="logRNum">
+	
+	<![CDATA[
+		where r_num >= #{searchVO.lastRow}
+		and r_num <= #{searchVO.firstRow}
+	]]>
+	
+	</sql>
+	
+	<select id="getTotalRowCountProd" parameterType="ProdSearchVO" resultType="int">
+		SELECT COUNT(*)
+		FROM(SELECT 
+				prod_no
+				, prod_name
+				, prod_price
+				, prod_content_url
+				, prod_img_url
+				, cate_code
+				, prod_unit
+			FROM product
+			WHERE 1=1
+			<include refid="shopSearch"></include>)
+	</select>
+
+
+	<select id="getProdList" parameterType="ProdSearchVO" resultType="ProductVO">
+		
+		SELECT *
+		FROM
+			(SELECT *
+			FROM
+				(SELECT
+				    ROWNUM as prod_r_num
+				    , a.*
+				FROM
+					(SELECT
+					          prod_no
+					        , prod_name
+					        , prod_price
+					        , prod_content_url
+					        , prod_img_url
+					        , cate_code
+					        , prod_unit
+					        , prod_sale_count
+					    FROM product
+					    WHERE 1=1
+						<include refid="shopSearch"></include>
+					    <include refid="shopOrder"></include>) a
+				    ) b
+			ORDER BY prod_r_num desc) c
+		<include refid="shopRNum"></include>
+			
+	</select>
+	
+	<select id="getCategoryLList" resultType="ProdCategoryVO">
+		SELECT
+		    cate_name
+		    , cate_code
+		    , parent_code
+		FROM prod_category
+		WHERE parent_code IS NULL
+		ORDER BY cate_code ASC
+	</select>
+	
+	<select id="getCategoryMList" resultType="ProdCategoryVO">
+		SELECT
+		    cate_name
+		    , cate_code
+		    , parent_code
+		FROM prod_category
+		WHERE parent_code IS NOT NULL
+		ORDER BY cate_code ASC
+	</select>
+	
+	<select id="getProduct" parameterType="String" resultType="ProductVO">
+		
+		SELECT b.*
+		    , (SELECT cate_name
+		       FROM prod_category
+		       WHERE cate_code = b.parent_code) as parent_cate_name
+		FROM
+			(SELECT
+			    a.*
+			    , (SELECT cate_name
+			       FROM prod_category
+			       WHERE cate_code = a.cate_code) as cate_name
+			    , (SELECT parent_code
+			       FROM prod_category
+			       WHERE cate_code = a.cate_code) as parent_code
+			FROM
+				(SELECT
+				      prod_no
+				    , prod_name
+				    , prod_price
+				    , prod_content_url
+				    , prod_img_url
+				    , cate_code
+				    , prod_unit
+				    , prod_sale_count
+				FROM product
+				WHERE prod_no = #{prodNo}) a 
+			) b
+	</select>
+	
+	<insert id="addCart" parameterType="Map">
+		INSERT INTO cart(
+		    cart_no
+		    , mem_no
+		    , prod_no
+		    , prod_cnt
+		)VALUES(
+		    'CART-' || TO_CHAR(SYSDATE, 'YYYYMM') || '-' || LPAD(seq_cart.nextval, 5, '0')
+		    , #{memNo}
+		    , #{product.prodNo}
+		    , #{product.prodCnt}
+		)
+	</insert>
+	
+	<select id="getCartProdList" parameterType="String" resultType="ProductVO">
+		SELECT a.*
+		    , (SELECT prod_name
+		        FROM product
+		        WHERE prod_no = a.prod_no) as prod_name
+		    , (SELECT prod_price
+		        FROM product
+		        WHERE prod_no = a.prod_no) as prod_price
+		    , (SELECT prod_img_url
+		        FROM product
+		        WHERE prod_no = a.prod_no) as prod_img_url
+		    , (SELECT prod_unit
+		        FROM product
+		        WHERE prod_no = a.prod_no) as prod_unit    
+		FROM
+		(SELECT 
+		    cart_no
+		    , prod_no
+		    , prod_cnt
+		FROM cart
+		WHERE mem_no = #{memNo}) a
+	</select>
+	
+	<update id="changeCartProdCnt" parameterType="Map">
+		UPDATE cart 
+		SET
+			prod_cnt = #{prodCnt}
+		WHERE cart_no = #{cartNo}
+	</update>
+	
+	<select id="checkCart" parameterType="Map" resultType="int">
+		SELECT COUNT(*)
+		FROM cart
+		WHERE prod_no = #{product.prodNo}
+		AND mem_no = #{memNo}
+	</select>
+	
+	<select id="getOrderProdList" parameterType="java.util.ArrayList" resultType="ProductVO">
+		SELECT a.*
+		    , (SELECT
+		            prod_price
+		        FROM product
+		        WHERE prod_no = a.prod_no) as prod_price
+		    , (SELECT
+		            prod_name
+		        FROM product
+		        WHERE prod_no = a.prod_no) as prod_name
+		    , (SELECT
+		            prod_img_url
+		        FROM product
+		        WHERE prod_no = a.prod_no) as prod_img_url
+		    , (SELECT
+		            prod_unit
+		        FROM product
+		        WHERE prod_no = a.prod_no) as prod_unit
+		FROM
+		(SELECT 
+		    cart_no
+		    , prod_no
+		    , prod_cnt
+		FROM cart
+		WHERE cart_no IN <foreach collection="cartNoArr" item="cartNo" open="(" separator="," close=")">#{cartNo}</foreach>) a
+	</select>
+	
+	<insert id="addOrderInfo" parameterType="Map">
+		INSERT INTO order_info(
+		    order_no
+		    , mem_no
+		    , order_date
+		    , order_state
+		    , dis_mileage
+		)VALUES(
+		    'ORDER-' || TO_CHAR(SYSDATE, 'YYYYMM') || '-' || LPAD(seq_order_info.nextval, 5, '0')
+		    , #{memNo}
+		    , sysdate
+		    , 'P'
+		    , #{mileage}
+		)
+	</insert>
+	
+	<select id="getCurOrderNo" parameterType="String" resultType="String">
+		SELECT
+		    order_no
+		FROM
+		(SELECT
+		    order_no
+		FROM order_info
+		WHERE mem_no = #{memNo}
+		ORDER BY order_date desc)
+		WHERE ROWNUM = 1
+	</select>
+	
+	<insert id="addOrderDetail" parameterType="Map">
+		INSERT INTO order_detail(
+		    order_detail_no
+		    , order_no
+		    , prod_no
+		    , prod_cnt
+		    , prod_price
+		)VALUES(
+		    'O-DETAIL-' || TO_CHAR(SYSDATE, 'YYYYMM') || '-' || LPAD(seq_order_detail.nextval, 5, '0')
+		    , #{orderNo}
+		    , #{orderProd.prodNo}
+		    , #{orderProd.prodCnt}
+		    , #{orderProd.prodPrice}
+		)
+	</insert>
+	
+	<delete id="deleteCart" parameterType="String">
+		DELETE FROM cart
+		WHERE cart_no IN <foreach collection="cartNoArr" item="cartNo" open="(" close=")" separator=",">#{cartNo}</foreach>
+	</delete>
+	
+	<delete id="deleteRowsByArray" parameterType="java.lang.String">
+	  DELETE FROM your_table
+	  WHERE your_column IN
+	  <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+	    #{item}
+	  </foreach>
+	</delete>
+	
+	<update id="prodSaleCountUp" parameterType="ProductVO">
+		UPDATE product
+		SET 
+			prod_sale_count = prod_sale_count + #{prodCnt}
+		WHERE prod_no = #{prodNo}
+	</update>	
+	
+	<select id="getOrderLogList" parameterType="Map" resultType="OrderLogVO">
+		SELECT b.*
+		FROM
+		(SELECT
+		    ROWNUM as r_num
+		    ,a.*
+		FROM(SELECT
+		        order_no
+		        , mem_no
+		        , order_date
+		        , order_state
+		        , dis_mileage
+		    FROM order_info
+		    WHERE mem_no = #{memNo}
+		    <include refid="logSearch"></include>
+		    ORDER BY order_date asc) a
+		ORDER BY r_num desc) b
+		<include refid="logRNum"></include>
+	</select>
+	
+	<select id="getOrderDetailList" parameterType="Map" resultType="OrderDetailVO">
+		SELECT
+			order_detail_no
+			, order_no
+			, prod_no
+			, prod_cnt
+			, prod_price
+		FROM order_detail
+		WHERE order_no IN <foreach collection="orderLogList" item="orderLog" open="(" separator="," close=")">#{orderLog.orderNo}</foreach>
+	</select>
+	
+	<select id="getProdImgUrl" parameterType="String" resultType="String">
+		SELECT
+			prod_img_url
+		FROM product
+		WHERE prod_no = #{prodNo}
+	</select>
+	
+	<select id="getProdName" parameterType="String" resultType="String">
+		SELECT
+			prod_name
+		FROM product
+		WHERE prod_no = #{prodNo}	
+	</select>
+	
+	<select id="getOrderLogListCount" parameterType="Map" resultType="int">
+		SELECT
+	        COUNT(*)
+	    FROM order_info
+	    WHERE mem_no = #{memNo}
+	    <include refid="logSearch"></include>
+	</select>
+</mapper>

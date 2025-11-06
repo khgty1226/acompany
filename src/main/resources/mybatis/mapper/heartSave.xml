@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.bteam.proj.board.dao.IHeartSaveDAO">
+	
+	<!-- 하트(좋아요) -->
+	<select id="checkHeart" resultType="int">
+		SELECT
+			count(heart_del_yn) AS heart_cnt
+		FROM
+			HEART
+		WHERE
+			mem_no = #{memNo}
+		  AND
+			board_no = #{boardNo}
+	</select>
+	
+	<insert id="insertHeart" parameterType="com.bteam.proj.board.vo.HeartVO">
+		INSERT INTO HEART (
+		      mem_no 
+		    , board_no 
+		    , heart_del_yn 
+		    , heart_cnt
+		    , heart_date 
+		    ) VALUES (
+		      #{memNo}
+		    , #{boardNo}
+		    , 'N'
+		    , #{heartCnt} + 1
+		    , SYSDATE
+		    )
+	</insert>
+	
+	<delete id="deleteHeart" parameterType="com.bteam.proj.board.vo.HeartVO">
+		DELETE
+			HEART
+		WHERE
+			mem_no = #{memNo}
+		  AND
+		  	board_no = #{boardNo}
+	</delete>
+	
+	<select id="getTotalHeartCount" resultType="int">
+		SELECT 
+		    COUNT(heart_cnt) as heart_cnt
+		FROM
+		    HEART
+		WHERE
+			board_no = #{boardNo}
+	</select>
+	
+	<select id="getHeart" parameterType="com.bteam.proj.board.vo.HeartVO" resultType="com.bteam.proj.board.vo.HeartVO">
+		SELECT
+			  mem_no
+			, board_no
+			, heart_del_yn
+			, heart_date
+			, heart_cnt
+		FROM
+			HEART
+		WHERE
+			mem_no = #{memNo}
+		  AND
+		  	board_no = #{boardNo}
+	</select>
+	
+	<!-- 저장하기 -->
+	<select id="getSave" parameterType="com.bteam.proj.board.vo.SaveVO" resultType="com.bteam.proj.board.vo.SaveVO">
+		SELECT
+			  mem_no
+			, board_no
+			, save_del_yn
+			, save_date
+			, save_cnt
+		FROM
+			SAVE
+		WHERE
+			mem_no = #{memNo}
+		  AND
+		  	board_no = #{boardNo}
+	</select>
+	
+	<select id="checkSave" resultType="int">
+		SELECT
+			count(save_del_yn) AS save_cnt
+		FROM
+			SAVE
+		WHERE
+			mem_no = #{memNo}
+		  AND
+			board_no = #{boardNo}
+	</select>
+	
+	<insert id="insertSave" parameterType="com.bteam.proj.board.vo.SaveVO">
+		INSERT INTO SAVE (
+		      mem_no 
+		    , board_no 
+		    , save_del_yn 
+		    , save_cnt
+		    , save_date 
+		    ) VALUES (
+		      #{memNo}
+		    , #{boardNo}
+		    , 'N'
+		    , #{saveCnt} + 1
+		    , SYSDATE
+		    )
+	</insert>
+	
+	<delete id="deleteSave" parameterType="com.bteam.proj.board.vo.SaveVO">
+		DELETE
+			Save
+		WHERE
+			mem_no = #{memNo}
+		  AND
+		  	board_no = #{boardNo}
+	</delete>
+	
+	<update id="plusHeart" parameterType="com.bteam.proj.board.vo.HeartVO">
+		UPDATE
+		    BOARDS
+		SET
+		    board_like = BOARD_LIKE + 1
+		WHERE
+		    board_no = #{boardNo}
+	</update>
+	
+	<update id="minusHeart" parameterType="com.bteam.proj.board.vo.HeartVO">
+		UPDATE
+		    BOARDS
+		SET
+		    board_like = BOARD_LIKE - 1
+		WHERE
+		    board_no = #{boardNo}
+	</update>
+	
+</mapper>

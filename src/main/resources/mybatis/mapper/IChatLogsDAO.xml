@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- SELECT
+
+	logs of specific Member 
+	<select id="getLogsOfByVo"
+		parameterType="com.bteam.proj.member.vo.MemberVO"
+		resultType="com.bteam.proj.chats.vo.ChatLogsVO">
+		SELECT * FROM CHAT_LOGS WHERE MEM_NO = #{memNo}
+	</select> 
+	 logs of specific chat room 
+<select id="getLogsInByVo"
+		parameterType="com.bteam.proj.chats.vo.ChatroomsVO"
+		resultType="com.bteam.proj.chats.vo.ChatLogsVO">
+		SELECT * FROM CHAT_LOGS WHERE CHATROOM_NO = #{chatroomNo}
+	</select> 
+	 UPDATE 
+
+	 update all the logs of specific user to another user's 
+	<update id="updateMemberOfChatLogsByVo"
+		parameterType="java.util.Map">
+		UPDATE CHAT_LOGS SET MEM_NO = #{toMember.memNo} WHERE MEM_NO =
+		#{fromMember.memNo}
+	</update> 
+		 update all the logs in specific chatroom to another chatroom's 
+ 	<update id="updateChatroomOfChatLogsByVo"
+		parameterType="java.util.Map">
+		UPDATE CHAT_LOGS SET CHATROOM_NO = #{toChatroom.chatroomNo} WHERE
+		CHATROOM_NO = #{fromChatroom.chatroomNo}
+	</update> 
+		 delete chatlogs in specific room 
+	<delete id="deleteChatLogsInByVo"
+	parameterType="com.bteam.proj.chats.vo.ChatroomsVO">
+		DELETE FROM CHAT_LOGS WHERE CHATROOM_NO = #{chatroomNo}
+	</delete> 
+		 delete chatlogs of specific user 
+	<delete id="deleteChatLogsOfByVo"
+		parameterType="com.bteam.proj.member.vo.MemberVO">
+		DELETE FROM CHAT_LOGS WHERE MEM_NO = #{memNo}
+	</delete> 
+		delete chatlogs of specific user in specific 
+		upper service
+	<delete id="deleteChatLogsOfMemberInChatRoom"
+		parameterType="com.bteam.proj.chats.vo.ChatroomMembersVO">
+		DELETE FROM CHAT_LOGS WHERE CHATROOM_NO = #{chatroomNo} AND MEM_NO =
+		#{memberNo}
+	</delete> 
+
+	delete chatlogs of specific user in specific room and timerange 
+<delete id="deleteChatLogsOfMemberInChatRoomBetween"
+	parameterType="java.util.Map">
+		DELETE FROM CHAT_LOGS WHERE CHATROOM_NO =
+		#{targetChatroomMembers.chatroomNo} AND MEM_NO =
+		#{targetChatroomMembers.memberNo} AND CHAT_TIME BETWEEN #{start} AND
+		#{end}
+	</delete> -->
+	
+<mapper namespace="com.bteam.proj.chats.dao.IChatLogsDAO">
+
+	<select id="getLogsOfByNo" parameterType="String"
+		resultType="com.bteam.proj.chats.vo.ChatLogsVO">
+		SELECT * FROM CHAT_LOGS WHERE MEM_NO = #{targetMemberNo}
+	</select>
+
+	
+	<select id="getLogsInByNo" parameterType="String"
+		resultType="com.bteam.proj.chats.vo.ChatLogsVO">
+		SELECT * FROM CHAT_LOGS WHERE CHATROOM_NO = #{targetChatroomNo}
+	</select>
+
+	<!-- logs of specific timerange -->
+	<select id="getLogsBetweenByZonedDateTime"
+		parameterType="java.time.ZonedDateTime"
+		resultType="com.bteam.proj.chats.vo.ChatLogsVO">
+		SELECT * FROM CHAT_LOGS WHERE CHAT_TIME BETWEEN #{start} AND #{end}
+	</select>
+
+	<!-- logs of specific text contained -->
+	<select id="getLogsHaving" parameterType="String"
+		resultType="com.bteam.proj.chats.vo.ChatLogsVO">
+		SELECT * FROM CHAT_LOGS WHERE CHAT_CONTENT LIKE '%' || #{content} || '%'
+	</select>
+
+	
+	<update id="updateMemberOfChatLogsByNo"
+		parameterType="java.util.Map">
+		UPDATE CHAT_LOGS SET MEM_NO = #{toMemberNo} WHERE MEM_NO = #{fromMemberNo}
+	</update>
+
+
+	<update id="updateChatroomOfChatLogsByNo"
+		parameterType="java.util.Map">
+		UPDATE CHAT_LOGS SET CHATROOM_NO = #{toChatroomNo} WHERE CHATROOM_NO =
+		#{fromChatroomNo}
+	</update>
+
+	<!-- update all the logs with specific time range by adding LocalDatetime value--> 
+	<update id="updateZonedDateTimeOfChatLogsByVo"
+		parameterType="java.util.Map">
+		UPDATE CHAT_LOGS SET CHAT_TIME = CHAT_TIME +  NUMTODSINTERVAL(#{minute}, 'MINUTE') WHERE
+		CHAT_TIME BETWEEN #{start} AND #{end}
+	</update>
+
+
+	<!-- update content of specific log identified by (chatroomNo, memberNo) 
+		to chatContent -->
+	<update id="updateContentOfChatLogsByVo"
+		parameterType="com.bteam.proj.chats.vo.ChatLogsVO">
+		UPDATE CHAT_LOGS SET CHAT_CONTENT = #{toContent} WHERE
+		CHATROOM_NO = #{fromChatLogs.chatroomNo} AND MEM_NO =
+		#{fromChatLogs.memNo}
+	</update>
+
+	<!-- INSERT -->
+
+	<!-- insert chatlog -->
+	<insert id="insertChatLog"
+		parameterType="com.bteam.proj.chats.vo.ChatLogsVO">
+		INSERT INTO CHAT_LOGS (CHATROOM_NO, MEM_NO, CHAT_CONTENT, CHAT_TIME) VALUES
+		(#{chatroomNo}, #{memNo}, #{chatContent}, #{chatTime})
+	</insert>
+	
+
+	<!-- DELETE -->
+
+
+	<delete id="deleteChatLogsInByNo" parameterType="String">
+		DELETE FROM CHAT_LOGS WHERE CHATROOM_NO = #{chatroomNo}
+	</delete>
+
+
+	<delete id="deleteChatLogsOfByNo" parameterType="String">
+		DELETE FROM CHAT_LOGS WHERE MEM_NO = #{targetMemberNo}
+	</delete>
+
+	<!-- delete chatlogs in timerange -->
+	<delete id="deleteChatLogsBetween" parameterType="java.util.Map">
+		DELETE FROM CHAT_LOGS WHERE CHAT_TIME BETWEEN #{start} AND #{end}
+	</delete>
+	
+	<!--  delete the chatlogs of certain user in the room  -->
+	<delete id="deleteScentOfMemberFromChatroom" parameterType = "String">
+		DELETE FROM CHAT_LOGS WHERE CHATROOM_NO = #{chatroomNo} AND MEM_No=#{memNo}
+	</delete>
+	
+	<!-- deleteChatlogs in specific -->
+	<delete id="deleteChatLogsSpecific" parameterType="java.util.Map">
+        DELETE FROM CHAT_LOGS
+        WHERE MEM_NO = #{memNo}
+        AND CHATROOM_NO = #{chatroomNo}
+        AND CHAT_TIME BETWEEN #{start} AND #{end}
+	</delete>
+
+	
+
+</mapper>

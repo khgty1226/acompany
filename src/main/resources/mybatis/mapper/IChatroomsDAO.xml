@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bteam.proj.chats.dao.IChatroomsDAO">
+
+	<select id="getAllChatrooms" resultType="ChatroomsVO">
+		SELECT
+		CHATROOM_NO,
+		CHATROOM_NAME,
+		CHATROOM_OWNER,
+		IS_CLOSED,
+		OPEN_DATETIME
+		FROM
+		CHATROOMS
+	</select>
+
+	<select id="getChatroom" parameterType="String"
+		resultType="ChatroomsVO">
+		SELECT
+		CHATROOM_NO,
+		CHATROOM_NAME,
+		CHATROOM_OWNER,
+		IS_CLOSED,
+		OPEN_DATETIME
+		FROM
+		CHATROOMS
+		WHERE
+		CHATROOM_NO = #{chatroomNo}
+	</select>
+
+	<select id="getChatrooms" parameterType="String"
+		resultType="ChatroomsVO">
+		SELECT
+		CHATROOM_NO,
+		CHATROOM_NAME,
+		CHATROOM_OWNER,
+		IS_CLOSED,
+		OPEN_DATETIME
+		FROM
+		CHATROOMS
+		WHERE
+		CHATROOM_NAME = #{chatroomName}
+	</select>
+
+	<select id="getChatroomsOf" parameterType="String"
+		resultType="ChatroomsVO">
+		SELECT
+		CHATROOM_NO,
+		CHATROOM_NAME,
+		CHATROOM_OWNER,
+		IS_CLOSED,
+		OPEN_DATETIME
+		FROM
+		CHATROOMS
+		WHERE
+		CHATROOM_OWNER = #{chatroomOwner}
+	</select>
+
+	<select id="getIsClosedOf" parameterType="String"
+		resultType="String">
+		SELECT
+		IS_CLOSED
+		FROM
+		CHATROOMS
+		WHERE
+		CHATROOM_OWNER =
+		#{chatroomNo}
+	</select>
+
+	<!-- <select id="getChatroomsCount" resultType="int"> SELECT COUNT(CHATROOM_NO) 
+		FROM CHATROOMS </select> <select id="getChatroomOwner" resultType="String"> 
+		SELECT CHATROOM_OWNER FROM CHATROOMS WHERE CHATROOM_NO=#{targetNo} </select> -->
+
+	<insert id="newChatroom" parameterType="ChatroomsVO">
+		INSERT
+		INTO CHATROOMS(
+		CHATROOM_NO,
+		CHATROOM_NAME,
+		CHATROOM_OWNER,
+		IS_CLOSED,
+		OPEN_DATETIME
+		)
+		VALUES (
+		#{chatroomNo},
+		#{chatroomName},
+		#{chatroomOwner},
+		#{isClosed},
+		#{openDatetime}
+		)
+	</insert>
+
+	<update id="changeChatroomNo" parameterType="String">
+		UPDATE CHATROOMS
+		SET
+		CHATROOM_NO = #{newChatroomNo}
+		WHERE CHATROOM_NO = #{targetNo}
+	</update>
+
+	<update id="changeChatroomName" parameterType="java.util.Map">
+		UPDATE CHATROOMS
+		SET CHATROOM_NAME = #{newName}
+		WHERE CHATROOM_NO = #{targetNo}
+	</update>
+
+	<update id="changeChatroomOwner" parameterType="String">
+		UPDATE CHATROOMS
+		SET CHATROOM_OWNER = #{ownerNew}
+		WHERE CHATROOM_NO = #{targetNo}
+	</update>
+	
+	<update id="setIsClosedChatroom" parameterType="String">
+    	UPDATE CHATROOMS
+    	SET IS_CLOSED = #{isClosed, typeHandler=com.bteam.proj.chats.config.BooleanTypeHandler}
+    	WHERE CHATROOM_NO = #{targetNo}
+	</update>
+	
+
+	<update id="closeChatroom" parameterType="String">
+		UPDATE CHATROOMS
+		SET
+		IS_CLOSED = 'Y'
+		WHERE CHATROOM_NO = #{targetNo}
+	</update>
+
+	<update id="openChatroom" parameterType="String">
+		UPDATE CHATROOMS
+		SET
+		IS_CLOSED = 'N'
+		WHERE CHATROOM_NO = #{targetNo}
+	</update>
+
+	<delete id="removeChatroom" parameterType="String">
+		DELETE FROM CHATROOMS
+		WHERE CHATROOM_NO = #{targetNo}
+	</delete>
+
+
+</mapper>
+  

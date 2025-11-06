@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.bteam.proj.member.dao.IMemberDAO">
+
+	<sql id="memberSearch">
+		<if test="searchWord != null and searchWord !=''">
+			<choose>
+				<when test='searchType=="ID"'>
+					and m.mem_no like '%' || #{searchWord} || '%'
+				</when>
+				<when test='searchType=="NM"'>
+					and m.mem_name like '%' || #{searchWord} || '%'
+				</when>
+				<when test='searchType=="HP"'>
+					and m.mem_phone like '%' || #{searchWord} || '%'
+				</when>
+			</choose>
+		</if>
+	
+		<if test="searchDept != null and searchDept !=''">
+			and mem_dept = #{searchDept}
+		</if>
+		<if test="searchTeam != null and searchTeam !=''">
+			and mem_team = #{searchTeam}
+		</if>
+	</sql>
+
+	<select id="joinCheckMembers" parameterType="com.bteam.proj.member.vo.MemberVO" resultType="com.bteam.proj.member.vo.MemberVO">
+		SELECT
+		      mem_no
+		FROM
+		      members
+		WHERE mem_no = #{memNo}
+		AND mem_del_yn = 'N'
+	</select>
+	
+	<select id="joinCheckMemberEmail" parameterType="com.bteam.proj.member.vo.MemberVO" resultType="com.bteam.proj.member.vo.MemberVO">
+		SELECT
+		      mem_no
+		FROM
+		      member_email
+		WHERE mem_no = #{memNo}
+	</select>
+	
+	<select id="joinEmailCheck" parameterType="com.bteam.proj.member.vo.MemberVO" resultType="com.bteam.proj.member.vo.MemberVO">
+		SELECT
+		      mem_email
+		FROM
+		      member_email
+		WHERE mem_email = #{memEmail}
+	</select>
+	
+	<!-- 마이페이지 수정시 본인 이메일 중복을 제외시키기 위한 쿼리문 -->
+	<select id="editEmailCheck" parameterType="com.bteam.proj.member.vo.MemberVO" resultType="com.bteam.proj.member.vo.MemberVO">
+		SELECT
+		      mem_email
+		FROM
+		      member_email
+		WHERE mem_email = #{memEmail}
+		AND mem_no = #{memNo}
+	</select>
+	
+	<!-- mybatis-config.xml에서 typeAlias로 MemberVO(IMemberDao의 메소드 파라미터)의 풀 경로 생략 가능 -->
+	<insert id="joinMemberInsertEmail" parameterType="com.bteam.proj.member.vo.MemberVO" > <!-- id = IMemberDao의 메소드명 -->
+		INSERT INTO email (
+		      mem_email
+		    , mem_pass
+		    , email_del_yn
+		) VALUES (
+		      #{memEmail}
+		    , #{memPass}
+		    , 'N'
+		)
+	</insert>
+	
+	<insert id="joinMemberInsertMemberEmail" parameterType="com.bteam.proj.member.vo.MemberVO" > <!-- id = IMemberDao의 메소드명 -->
+		INSERT INTO member_email (
+		       mem_no
+		      ,mem_email
+		) VALUES (
+		       #{memNo}
+		      ,#{memEmail}
+		)
+	</insert>
+	
+	<select id="getMailAuth" parameterType="String" resultType="com.bteam.proj.member.vo.MailAuthVO">
+		select
+			mail
+			,auth_key
+			,is_auth
+		from
+			mail_auth
+		where mail = #{mail}
+	</select>
+	
+	<insert id="insertMailAuth" parameterType="string">
+		insert into mail_auth(
+			mail
+			,auth_key
+			,is_auth
+		)values(
+			#{mail}
+			,#{authKey}
+			,0
+		)
+	</insert>
+	
+	<update id="updateMailAuth" parameterType="string">
+		update mail_auth
+			set auth_key = #{authKey}
+		where mail = #{mail}
+	</update>
+	
+	<update id="completeAuth" parameterType="String">
+		update mail_auth 
+			set is_auth = 1 
+		where mail = #{mail}
+	</update>
+	
+	<select id="checkMailAuth" parameterType="string" resultType="int">
+		select 
+		    count(*) 
+		from 
+			mail_auth
+		where 
+			mail = #{memEmail}
+			and is_auth = 1
+	</select>
+	
+	<select id="loginMember" parameterType="com.bteam.proj.member.vo.MemberVO" resultType="com.bteam.proj.member.vo.MemberVO">
+		SELECT 
+		     a.mem_no
+		    ,b.mem_pass
+		    ,c.mem_name
+		    ,c.role_code
+		FROM
+		     member_email a
+		JOIN
+		     email b ON a.mem_email = b.mem_email
+		JOIN
+		     members c ON a.mem_no = c.mem_no
+		WHERE
+		    a.mem_no = #{memNo}
+		AND
+		    b.email_del_yn = 'N'
+	</select>
+	
+	<select id="loginDelMember" resultType="string">
+		SELECT m.mem_no
+		FROM members m
+		WHERE m.mem_no IN (
+		    SELECT me.mem_no
+		    FROM member_email me
+		    INNER JOIN email e ON me.mem_email = e.mem_email
+		    WHERE e.email_del_yn = 'Y'
+		)
+	</select>
+	
+	<select id="getMember" parameterType="string" resultType="com.bteam.proj.member.vo.MemberVO">
+		SELECT m.mem_no
+		      ,e.mem_pass
+		      ,m.mem_name
+		      ,e.mem_email
+		      ,m.mem_phone
+		      ,m.mem_add
+		      ,m.mem_mileage
+		      ,m.role_code
+		      ,m.mem_dept
+		      ,m.mem_team
+		      ,m.mem_join_date
+		      ,m.mem_del_date
+		      ,m.mem_del_yn
+		      ,m.mem_gender
+		      ,m.mem_birthday
+		FROM members m
+		JOIN member_email me ON m.mem_no = me.mem_no
+		JOIN email e ON me.mem_email = e.mem_email
+		WHERE m.mem_no = #{memNo} AND e.mem_email = me.mem_email
+	</select> 
+	
+	<select id="getRoleInfo" resultType="com.bteam.proj.common.vo.RoleInfoVO">
+		select
+			role_code
+			,role_name
+		from
+			role_info
+	</select>
+	
+	<select id="getUserRoleList" parameterType="string" resultType="string">
+		SELECT 
+			ROLE_CODE
+		FROM
+			MEMBERS
+		WHERE
+			MEM_NO = #{memNo}
+	</select>
+	
+	<select id="getTotalRowCount" parameterType="com.bteam.proj.member.vo.MemberSearchVO" resultType="int">
+		SELECT COUNT(*)
+		FROM email
+		JOIN member_email ON email.mem_email = member_email.mem_email
+		JOIN members m ON member_email.mem_no = m.mem_no
+		WHERE email.email_del_yn = 'N'
+		<include refid="memberSearch"></include>
+	</select>
+	
+	<select id="getMemberList" parameterType="com.bteam.proj.member.vo.MemberSearchVO" resultType="com.bteam.proj.member.vo.MemberVO">
+		SELECT
+		    c.*
+		FROM (
+		    SELECT
+		        rownum as rnum,
+		        b.*
+		    FROM (
+		            SELECT
+		            m.mem_no,
+		            m.mem_name,
+		            m.mem_gender,
+		            m.role_code,
+		            TO_CHAR(m.mem_birthday, 'YYYY-MM-DD') AS mem_birthday,
+		            m.mem_phone,
+		            m.mem_add,
+		            me.mem_email,
+		            m.mem_mileage,
+		            m.mem_dept,
+		            m.mem_team,
+		            m.mem_del_yn,
+		            TO_CHAR(m.mem_join_date, 'YYYY-MM-DD') AS mem_join_date,
+		            m.mem_del_date
+		        FROM
+		            members m
+		        JOIN
+		            member_email me ON m.mem_no = me.mem_no
+		        JOIN 
+		            email e ON e.mem_email = me.mem_email
+		        WHERE
+		            m.mem_del_yn = 'N'
+		        AND
+		            e.email_del_yn = 'N'
+				<include refid="memberSearch"></include>
+		        ORDER BY
+		            m.mem_join_date DESC )b
+		    ORDER BY rnum desc )c
+		<include refid="common.sql.rnum"></include>
+	</select>
+	
+	<update id="updateRole" parameterType="string">
+		UPDATE members
+		SET role_code = #{role}
+		WHERE mem_no = #{memNo}
+	</update>
+	
+	<update id="updateListRole" parameterType="java.util.List">
+		<foreach collection="list" item="member" separator=";" open="DECLARE BEGIN" close="; END;" >
+			UPDATE members
+			SET mem_dept = #{member.memDept}, mem_team = #{member.memTeam}, mem_mileage = #{member.memMileage}
+			WHERE mem_no = #{member.memNo}
+		</foreach>
+	</update>
+	
+	<update id="updateMembers" parameterType="com.bteam.proj.member.vo.MemberVO">
+		UPDATE
+		     members
+		SET
+		     mem_birthday = #{memBirthday}
+		    ,mem_phone = #{memPhone}
+		    ,mem_add = #{memAdd}
+		WHERE
+		    mem_no = #{memNo}
+	</update>
+	
+<!-- 	<update id="updateMembers" parameterType="com.bteam.proj.member.vo.MemberVO">
+		UPDATE
+		     members
+		SET
+		     mem_birthday = #{memBirthday}
+		    ,mem_add = #{memAdd}
+		WHERE
+		    mem_no = #{memNo}
+	</update> -->
+	
+	<update id="updateMemberEmail" parameterType="com.bteam.proj.member.vo.MemberVO">
+		UPDATE
+		    member_email
+		SET
+		    mem_email = #{memEmail}
+		WHERE
+		    mem_no = #{memNo}
+	</update>
+	
+	<update id="updateEmail" parameterType="com.bteam.proj.member.vo.MemberVO">
+		UPDATE email
+		SET mem_email = #{memEmail}
+		WHERE mem_email IN (SELECT mem_email FROM member_email WHERE mem_no = #{memNo})
+	</update>
+	
+	<update id="updatePass" parameterType="com.bteam.proj.member.vo.MemberVO">
+		UPDATE email
+		SET mem_pass = #{memPassNew}
+		WHERE mem_email IN (SELECT mem_email FROM member_email WHERE mem_no = #{memNo})
+	</update>
+	
+	<update id="deleteMember" parameterType="com.bteam.proj.member.vo.MemberVO">
+		UPDATE members
+		SET mem_del_yn = 'Y'
+		WHERE mem_no = #{memNo}
+	</update>
+	
+	<delete id="deleteEmail" parameterType="com.bteam.proj.member.vo.MemberVO">
+		DELETE FROM member_email
+		WHERE mem_no = #{memNo}
+	</delete>
+	
+	<update id="updateEmailYn" parameterType="com.bteam.proj.member.vo.MemberVO">
+		UPDATE email
+		SET email_del_yn = 'Y'
+		WHERE mem_email IN (SELECT mem_email FROM member_email WHERE mem_no = #{memNo})
+	</update>
+	
+	<insert id="loginTime" parameterType="string">
+		INSERT INTO login (
+		      mem_no
+		    , login_time
+		) VALUES (
+		      #{memNo}
+		    , SYSDATE
+		)
+	</insert>
+	
+	<insert id="logoutTime" parameterType="string">
+		INSERT INTO logout (
+		      mem_no
+		    , logout_time
+		) VALUES (
+		      #{memNo}
+		    , SYSDATE
+		)
+	</insert>
+	
+</mapper>

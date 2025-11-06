@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+	  <!-- Oracle 테이블의 컬럼이 mem_id 이고, DTO의 필드변수가 memNo 일때 매칭이 가능하게 하는 옵션 -->
+	  <setting name="mapUnderscoreToCamelCase" value="true"/> 
+	</settings>
+	
+	<typeAliases>
+
+ 		<package name="com.bteam.proj.carpool.vo"/>
+ 		<package name="com.bteam.proj.member.vo"/>
+ 		<package name="com.bteam.proj.chats.vo"/>
+ 		<package name="com.bteam.proj.mileageshop.vo"/>
+ 	</typeAliases>
+ 	
+ 	<typeHandlers>
+    	<typeHandler handler="com.bteam.proj.chats.config.ZonedDateTimeTypeHandler"/>
+    	<typeHandler handler="com.bteam.proj.chats.config.BooleanTypeHandler"/>
+	</typeHandlers>
+</configuration>

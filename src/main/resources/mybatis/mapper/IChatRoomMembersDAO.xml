@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bteam.proj.chats.dao.IChatroomMembersDAO">
+
+	<!-- RETURN ALL MEMBERS IN THE ROOM -> should be upper service layer
+	<select id="getChattingrooms" resultType="MemberVO">
+		SELECT
+		*
+		FROM
+		MEMBERS MALL
+		WHERE
+		MALL.MEM_NO
+		IN
+		(SELECT
+		M.MEM_NO
+		FROM
+		MEMBERS M
+		INNER JOIN
+		CHATROOM_MEMBERS CM
+		ON
+		(CM.MEMBER_NO = M.MEM_NO))
+	</select>
+-->
+	<select id="getChatroomMembers" resultType="ChatroomMembersVO">
+		SELECT * FROM CHATROOM_MEMBERS
+	</select>
+	
+	<!-- RETURN ALL CHATROOM WHERE A MEMBER IS IN -> should be upper service layer
+	<select id="getChattingroomsByVo" parameterType="MemberVO"
+		resultType="ChatroomsVO">
+		SELECT
+		CHATROOM_NO,
+		CHATROOM_NAME,
+		CHATROOM_OWNER
+		FROM
+		CHATROOM_MEMBERS CM
+		INNER JOIN
+		CHATROOMS C
+		USING
+		(CHATROOM_NO)
+		WHERE
+		CM.MEMBER_NO = #{memberNo}
+	</select>
+
+	<select id="getChattingroomsByNo" parameterType="String"
+		resultType="ChatroomsVO">
+		SELECT
+		CHATROOM_NO,
+		CHATROOM_NAME,
+		CHATROOM_OWNER
+		FROM
+		CHATROOM_MEMBERS CM
+		INNER JOIN
+		CHATROOMS C
+		USING
+		(CHATROOM_NO)
+		WHERE
+		CM.MEMBER_NO =
+		#{targetMemberNo}
+	</select>
+	-->
+	
+<!--	should be in upper service layer 
+	
+	<select id="getChatroomMembersByMemberVo" parameterType="MemberVO" resultType="ChatroomMembersVO">
+		SELECT * FROM CHATROOM_MEMBERS WHERE CHATROOM_NO = #{memberNo}
+	</select> -->
+	
+	<select id="getChatroomMembersByMemberNo" parameterType="String" resultType="ChatroomMembersVO">
+		SELECT * FROM CHATROOM_MEMBERS WHERE MEMBER_NO = #{targetMemberNo}
+	</select>
+	
+	<!-- RETURN ALL MEMBER IN A SPECIFIC ROOM - should be on in upper service layer
+	<select id="getMembersByVo" parameterType="ChatroomsVO"
+		resultType="MemberVO">
+		SELECT
+		*
+		FROM
+		MEMBERS MALL
+		WHERE
+		MALL.MEM_NO
+		IN
+		(SELECT
+		M.MEM_NO
+		FROM
+		MEMBERS M
+		INNER JOIN
+		CHATROOM_MEMBERS CM
+		ON
+		(CM.MEMBER_NO = M.MEM_NO)
+		WHERE
+		CM.CHATROOM_NO = #{chatroomNo})
+	</select>
+	<select id="getMembersByNo" parameterType="String"
+		resultType="MemberVO">
+		SELECT
+		*
+		FROM
+		MEMBERS MALL
+		WHERE
+		MALL.MEM_NO
+		IN
+		(SELECT
+		M.MEM_NO
+		FROM
+		MEMBERS M
+		INNER JOIN
+		CHATROOM_MEMBERS CM
+		ON
+		(CM.MEMBER_NO = M.MEM_NO)
+		WHERE
+		CM.CHATROOM_NO = #{targetChatRoomNo})
+	</select>
+	-->
+	
+<!-- 	<select id="getChatroomMembersByChatroomsVo" parameterType="ChatroomsVO" resultType="ChatroomMembersVO">
+		SELECT * FROM CHATROOM_MEMBERS WHERE CHATROOM_NO = #{chatroomNo}
+	</select> -->
+	
+	<select id="getChatroomMembersByChatroomNo" parameterType="String" resultType="ChatroomMembersVO">
+		SELECT * FROM CHATROOM_MEMBERS WHERE CHATROOM_NO = #{targetChatroomsNo}
+	</select>
+	
+	<!-- update(move) all members in specific room into another -->
+<!-- 	<update id="updateMembersByChatroomsVo" parameterType="ChatroomsVO">
+		UPDATE
+		CHATROOM_MEMBERS CM
+		SET
+		CM.CHATROOM_NO = #{toChatroom.chatroomNo}
+		WHERE
+		CM.CHATROOM_NO =
+		#{fromChatroom.chatroomNo}
+		AND 
+        CM.MEMBER_NO 
+        NOT IN 
+        (
+        SELECT 
+        MEMBER_NO
+        FROM 
+        CHATROOM_MEMBERS 
+        WHERE 
+        CHATROOM_NO = #{toChatroom.chatroomNo}
+        )
+        
+	</update> -->
+<!-- 	<update id="swapMembersInByNo" parameterType="String">
+		UPDATE
+		CHATROOM_MEMBERS CM
+		SET
+		CM.CHATROOM_NO = #{toChatroomNo}
+		WHERE
+		CM.CHATROOM_NO = #{fromChatroomNo}
+		AND 
+        CM.MEMBER_NO 
+        NOT IN 
+        (
+        SELECT 
+        MEMBER_NO
+        FROM 
+        CHATROOM_MEMBERS 
+        WHERE 
+        CHATROOM_NO = #{toChatroomNo}
+        )
+	</update> -->
+	
+	<!-- swap a member of all rooms to another member -->
+<!-- 	<update id="changeMemberByVo" parameterType="MemberVO">
+		UPDATE
+		CHATROOM_MEMBERS CM
+		SET
+		CM.MEMBER_NO= #{toMember.memberNo}
+		WHERE
+		CM.MEMBER_NO=
+		#{fromMember.memberNo}
+		AND
+		CM.CHATROOM_NO
+		NOT IN 
+		(
+		SELECT 
+		CHATROOM_NO
+		FROM
+		CHATROOM_MEMBERS
+		WHERE
+		MEMBER_NO =#{toMember.memberNo}
+		)
+	</update> -->
+	<update id="updateMemberByNo" parameterType="String">
+		UPDATE
+		CHATROOM_MEMBERS
+		CM
+		SET
+		CM.MEMBER_NO = #{toMemberNo}
+		WHERE
+		CM.MEMBER_NO = #{fromMemberNo}
+				AND
+		CM.CHATROOM_NO
+		NOT IN 
+		(
+		SELECT 
+		CHATROOM_NO
+		FROM
+		CHATROOM_MEMBERS
+		WHERE
+		MEMBER_NO =#{toMemberNo}
+		)
+	</update>
+	<!-- move a member in specific room to another room -->
+<!-- 	<update id="moveMemberByVo" parameterType="java.util.Map">
+		UPDATE
+		CHATROOM_MEMBERS CM
+		SET
+		CM.CHATROOM_NO = #{toChatroom.chatroomNo}
+		WHERE
+		CM.CHATROOM_NO =
+		#{fromChatroom.chatroomNo}
+		AND
+		CM.MEMBER_NO = #{targetMember.memberNo}
+		AND
+		CM.MEMBER_NO 
+		NOT IN
+		(
+		SELECT 
+		MEMBER_NO
+		FROM
+		CHATROOM_MEMBERS
+		WHERE
+		CHATROOM_NO = #{toChatroom.chatroomNo}
+		)
+	</update> -->
+	<update id="moveMemberByNo" parameterType="String">
+		UPDATE
+		CHATROOM_MEMBERS CM
+		SET
+		CM.CHATROOM_NO = #{toChatroomNo}
+		WHERE
+		CM.CHATROOM_NO =
+		#{fromChatroomNo}
+		AND
+		CM.MEMBER_NO = #{targetMemberNo}
+		AND
+		CM.MEMBER_NO 
+		NOT IN
+		(
+		SELECT 
+		MEMBER_NO
+		FROM
+		CHATROOM_MEMBERS
+		WHERE
+		CHATROOM_NO = #{toChatroomNo}
+		)
+	</update>
+	<!-- inserts -->
+<!-- 	<insert id="insertMemberByVo" parameterType="java.util.Map">
+		INSERT
+		INTO
+		CHATROOM_MEMBERS(
+		CHATROOM_NO,
+		MEMBER_NO
+		)VALUES(
+		#{targetMember.memberNo},
+		#{toChatroom.chatroomNo}
+		)
+	</insert> -->
+	<insert id="insertMemberByNo" parameterType="String">
+		INSERT
+		INTO
+		CHATROOM_MEMBERS(
+		CHATROOM_NO,
+		MEMBER_NO
+		)
+		VALUES
+		(
+		#{toChatroomNo},
+		#{targetMemberNo}
+		)
+	</insert>
+	<!-- deletes -->
+<!-- 	<delete id="removeMemberByVo" parameterType="java.util.Map">
+		DELETE
+		FROM
+		CHATROOM_MEMBERS CM
+		WHERE
+		CM.CHATROOM_NO = #{fromChatroom.chatroomNo}
+		AND
+		CM.MEMBER_NO = #{targetMember.memberNo}
+	</delete> -->
+	<delete id="removeMemberByNo" parameterType="String">
+		DELETE
+		FROM
+		CHATROOM_MEMBERS CM
+		WHERE
+		CM.CHATROOM_NO = #{fromChatroomNo}
+		AND
+		CM.MEMBER_NO = #{targetMemberNo}
+	</delete>
+
+</mapper>

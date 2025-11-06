@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.bteam.proj.reply.dao.IReplyDAO">
+	
+	<insert id="replyRegister" parameterType="com.bteam.proj.reply.vo.ReplyVO">
+		INSERT INTO reply(
+			  re_no
+			, re_category
+			, re_parent_no
+			, mem_no
+			, re_content
+			, re_ip
+			, re_reg_date
+		)values(
+			  seq_reply.nextval
+			, #{reCategory}
+			, #{reParentNo}
+			, #{memNo}
+			, #{reContent}
+			, #{reIp}
+			, SYSDATE
+		)
+	</insert>
+	
+	<select id="getReplyListByParent" parameterType="com.bteam.proj.reply.vo.ReplyVO" resultType="com.bteam.proj.reply.vo.ReplyVO">
+		SELECT
+		      re_no
+		    , re_category
+		    , re_parent_no
+		    , mem_no
+		    , re_content
+		    , re_ip
+		    , re_reg_date
+		FROM 
+		    REPLY
+		WHERE
+		    re_category = #{reCategory}
+		  AND
+		    re_parent_no = #{reParentNo}
+		ORDER BY
+		    re_no DESC
+	</select>
+	
+	<update id="replyUpdate" parameterType="com.bteam.proj.reply.vo.ReplyVO">
+		UPDATE
+		    REPLY
+		SET
+		      re_content = #{reContent}
+		    , mem_no = #{memNo}
+		    , re_ip = #{reIp}
+		WHERE
+		    re_no = #{reNo}
+	</update>
+	
+	<delete id="replyDelete" parameterType="com.bteam.proj.reply.vo.ReplyVO">
+		DELETE
+		FROM
+		    REPLY
+		WHERE
+		    re_no = #{reNo}
+		  AND
+		    mem_no = #{memNo}
+	</delete>
+	
+	<select id="getReplySelectList" resultType="com.bteam.proj.board.vo.BoardVO">
+		SELECT 
+		        a. board_no
+		      , a. mem_no
+		FROM(select
+		          re_parent_no as board_no
+		        , mem_no
+		        , row_number() over(PARTITION BY mem_no order by mem_no) as rn
+		     from reply
+		     where re_parent_no = #{boardNo}) a
+		WHERE rn = 1
+	</select>
+	
+</mapper>
