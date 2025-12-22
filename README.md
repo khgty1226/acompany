@@ -19,8 +19,8 @@
 - 운행 기록 관리
 
 
-### 기능 캡쳐
-![carpool_crossfade](https://github.com/user-attachments/assets/f7008e28-f294-42f7-b439-35c97bf8ccfe)
+### 기능 캡쳐 (.gif)
+![carpool_crossfade_600](https://github.com/user-attachments/assets/86187903-ed62-4c39-b472-688a343e394a)
 
 <br>
 
@@ -35,7 +35,7 @@
 - 결제
 
 
-### 기능 캡쳐
+### 기능 캡쳐 (.gif)
 ![mileage_crossfade](https://github.com/user-attachments/assets/6e1c203d-c241-4020-971c-1134161d1284)
 
 <br>
