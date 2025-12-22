@@ -20,7 +20,7 @@
 
 
 ### 기능 캡쳐
-![carpool](https://github.com/user-attachments/assets/821877c0-9b8c-4708-b9ec-7c10b06cc405)
+![carpool_crossfade](https://github.com/user-attachments/assets/f7008e28-f294-42f7-b439-35c97bf8ccfe)
 
 <br>
 
@@ -36,7 +36,7 @@
 
 
 ### 기능 캡쳐
-![mileageshop](https://github.com/user-attachments/assets/d30e1433-d6f9-467c-b7f0-0dbbbd244a5a)
+![mileage_crossfade](https://github.com/user-attachments/assets/6e1c203d-c241-4020-971c-1134161d1284)
 
 <br>
 
