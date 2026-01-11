@@ -44,7 +44,7 @@ public class MileageShopController {
 	
 	@Autowired
 	private MemberService memberService;
-	
+
 	@RequestMapping("/mileageShopView")
 	public String mileageShopView( Model model, ProdSearchVO searchVO) {
 		
@@ -78,15 +78,15 @@ public class MileageShopController {
 	@RequestMapping("/mileageShopDetailView")
 	public String mileageShopDetailView(ProductVO product, Model model) {
 		
-		System.out.println("[MileageShop Controller mileageShopDetailView]");
-		
-		String prodNo = product.getProdNo();
-		System.out.println("prodNo:" + prodNo);
-
-		product = shopService.getProduct(prodNo);
-		System.out.println("product:"+ product);
-		
-		model.addAttribute("product", product);
+//		System.out.println("[MileageShop Controller mileageShopDetailView]");
+//
+//		String prodNo = product.getProdNo();
+//		System.out.println("prodNo:" + prodNo);
+//
+//		product = shopService.getProduct(prodNo);
+//		System.out.println("product:"+ product);
+//
+//		model.addAttribute("product", product);
 		
 		return "/mileageShop/mileageShopDetail";
 	}
@@ -117,22 +117,22 @@ public class MileageShopController {
 	
 	@RequestMapping("/mileageShopCartView")
 	public String mileageShopCartView(HttpSession session, Model model, String msg) {
-		System.out.println("[MileageShop Controller mileageShopCartView]");
-		MemberVO member = (MemberVO)session.getAttribute("login");
-		
-		if(member != null) {
-			String memNo = member.getMemNo();
-			
-			List<ProductVO> prodList = shopService.getCartProdList(memNo);
-			System.out.println("cart prodList:" + prodList);
-			
-			model.addAttribute("prodList", prodList);
-			model.addAttribute("msg", msg);
-			
+//		System.out.println("[MileageShop Controller mileageShopCartView]");
+//		MemberVO member = (MemberVO)session.getAttribute("login");
+//
+//		if(member != null) {
+//			String memNo = member.getMemNo();
+//
+//			List<ProductVO> prodList = shopService.getCartProdList(memNo);
+//			System.out.println("cart prodList:" + prodList);
+//
+//			model.addAttribute("prodList", prodList);
+//			model.addAttribute("msg", msg);
+//
 			return "/mileageShop/mileageShopCart";
-		}else {
-			return "redirect:/startView?msg=none";
-		}
+//		}else {
+//			return "redirect:/startView?msg=none";
+//		}
 	}
 	
 	@RequestMapping("/changeCartProdCnt")
@@ -152,72 +152,72 @@ public class MileageShopController {
 	
 	@RequestMapping("/mileageShopOrderView")
 	public String mileageShopOrderView(String cartNoStr, Model model, HttpSession session, ProductVO product) {
-		System.out.println("[MileageShop Controller mileageShopOrderView]");
-		System.out.println("cartNoStr:"+ cartNoStr);
-		System.out.println("product:"+ product);
-		
-		List<ProductVO> orderProdList = new ArrayList<>();
-		MemberVO member = (MemberVO)session.getAttribute("login");
-		
-		if(member != null) {
-			int cnt = product.getProdCnt();
-			MemberVO memberVO = null;
-			try {
-				 memberVO = memberService.getMember(member.getMemNo());
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			if(product.getProdNo() == null) {
-				ObjectMapper om = new ObjectMapper();
-				String[] arr;
-				List<String> cartNoArr = new ArrayList<>();
-				
-				try {
-					arr = om.readValue(cartNoStr, String[].class);
-					System.out.println(Arrays.toString(arr));
-					
-					for(int i = 0 ; i < arr.length; i ++) {
-						cartNoArr.add(arr[i]);
-					}
-					System.out.println("cartNoArr:"+ cartNoArr.toString());
-					
-					try {
-						orderProdList = shopService.getOrderProdList(cartNoArr);
-						System.out.println("orderProdList:"+ orderProdList);
-					} catch (Exception e) {
-						System.out.println(e.getMessage());
-						e.printStackTrace();
-					}
-					
-				} catch (JsonMappingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-	
-				
-				model.addAttribute("prodList", orderProdList);
-				model.addAttribute("member", memberVO);
-				
+//		System.out.println("[MileageShop Controller mileageShopOrderView]");
+//		System.out.println("cartNoStr:"+ cartNoStr);
+//		System.out.println("product:"+ product);
+//
+//		List<ProductVO> orderProdList = new ArrayList<>();
+//		MemberVO member = (MemberVO)session.getAttribute("login");
+//
+//		if(member != null) {
+//			int cnt = product.getProdCnt();
+//			MemberVO memberVO = null;
+//			try {
+//				 memberVO = memberService.getMember(member.getMemNo());
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//
+//			if(product.getProdNo() == null) {
+//				ObjectMapper om = new ObjectMapper();
+//				String[] arr;
+//				List<String> cartNoArr = new ArrayList<>();
+//
+//				try {
+//					arr = om.readValue(cartNoStr, String[].class);
+//					System.out.println(Arrays.toString(arr));
+//
+//					for(int i = 0 ; i < arr.length; i ++) {
+//						cartNoArr.add(arr[i]);
+//					}
+//					System.out.println("cartNoArr:"+ cartNoArr.toString());
+//
+//					try {
+//						orderProdList = shopService.getOrderProdList(cartNoArr);
+//						System.out.println("orderProdList:"+ orderProdList);
+//					} catch (Exception e) {
+//						System.out.println(e.getMessage());
+//						e.printStackTrace();
+//					}
+//
+//				} catch (JsonMappingException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (JsonProcessingException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//
+//
+//
+//				model.addAttribute("prodList", orderProdList);
+//				model.addAttribute("member", memberVO);
+//
 				return "/mileageShop/mileageShopOrder";
-			}else {
-				product = shopService.getProduct(product.getProdNo());
-				product.setProdCnt(cnt);
-				orderProdList.add(product);
-				
-				
-				model.addAttribute("prodList", orderProdList);
-				model.addAttribute("member", memberVO);
-				return "/mileageShop/mileageShopOrder";
-			}
-		}else {
-			return "redirect:/startView?msg=none";
-		}
+//			}else {
+//				product = shopService.getProduct(product.getProdNo());
+//				product.setProdCnt(cnt);
+//				orderProdList.add(product);
+//
+//
+//				model.addAttribute("prodList", orderProdList);
+//				model.addAttribute("member", memberVO);
+//				return "/mileageShop/mileageShopOrder";
+//			}
+//		}else {
+//			return "redirect:/startView?msg=none";
+//		}
 	}
 	
 	/*

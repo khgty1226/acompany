@@ -67,16 +67,16 @@
             <div class="row g-5" style="width: 1500px">
             		<div class="col-lg-5">
                     <div class="product-img">
-                        <img src="${product.prodImgUrl }" alt="">
+                        <img src="/resources/product/prod_img/2559.jpg" alt="">
                     </div>
                 </div>
                 <div class="col-lg-7">
-                    <h4 class="section-title">${product.parentCateName } / ${product.cateName }</h4>
-                    <h1 class="display-5 mb-4">${product.prodName }</h1>
+                    <h4 class="section-title"> 사무용품 / 사무</h4>
+                    <h1 class="display-5 mb-4">아인 지우개</h1>
                     <div class="row g-4">
-                    <div class="col-3" style="padding-top: 10px">관리코드:${product.prodNo }</div>
-                    <div class="col-3" style="padding-top: 10px">단위: ${product.prodUnit }</div>
-                    <div class="col-6" style="text-align:right;"><p id="prodPrice" style="font-size:2rem; font-weight: bold; color: black; display: inline"><fmt:formatNumber value="${product.prodPrice }" pattern="#,###,###"/></p>
+                    <div class="col-3" style="padding-top: 10px">관리코드: 002559</div>
+                    <div class="col-3" style="padding-top: 10px">단위: 개(1)</div>
+                    <div class="col-6" style="text-align:right;"><p id="prodPrice" style="font-size:2rem; font-weight: bold; color: black; display: inline">500</p>
                     <p style="font-size:2rem; font-weight: bold; color: black; display: inline">원</p>
                     </div>
                     </div>
@@ -109,7 +109,7 @@
                                 <div class="col-8" style="height: 100%">
                                 	<div style="width: 500px; height: 40px; float: right;  text-align:right;">
                                 		<p style="font-size:2rem; color: var(--primary); font-weight: bold; display: inline">총 </p>
-                                		<p id="prodTotalPrice" style="font-size:2rem; color: var(--primary); font-weight: bold; display: inline;"><fmt:formatNumber value="${product.prodPrice }" pattern="#,###,###"/></p>
+                                		<p id="prodTotalPrice" style="font-size:2rem; color: var(--primary); font-weight: bold; display: inline;">500</p>
                                 		<p style="font-size:2rem; color: var(--primary); font-weight: bold; display: inline">원</p>
                                 	</div>
                                 </div>
@@ -123,8 +123,8 @@
 	                                </div>
 	                                <div class="col-8" style="height: 100%">
 	                                	<div style="width: 500px; height: 40px; float: right;  text-align:right;">
-	                                			<form id="prodForm" action="${pageContext.request.contextPath }/mileageShopOrderView" style="display:none;">
-											       	<input type="hidden" name="prodNo" value="${product.prodNo }">
+	                                			<form id="prodForm" action="" style="display:none;">
+											       	<input type="hidden" name="prodNo" value="">
 											       	<input type="hidden" name="prodCnt">
 											       </form>
 						                       <button id="cartBtn" type="button" class="btn btn-outline-primary prodDetailBtn">장바구니</button>
@@ -144,7 +144,7 @@
 				</div>	            
             	<div class="col-2"></div>
             	<div class="col-8" style="text-align: center">
-            		<img alt="" src="${product.prodContentUrl }">
+            		<img alt="" src="/resources/product/prod_content_img/2559.jpg">
             	</div>
             	<div class="col-2"></div>
             </div>
@@ -232,77 +232,6 @@
     <script src="js/main.js"></script>
     
     <script type="text/javascript">
-	if("${login.memNo }" == null || "${login.memNo}" == ''){
-		location.href = "${pageContext.request.contextPath }/startView?msg=none";
-	}
-    	$(function(){
-    		$("#cntMinusBtn").on("click", function(){
-    			let prodCnt = $("#prodCnt").html()-1;
-    			if(prodCnt > 0){
-    				$("#prodCnt").html(prodCnt);
-	    			
-    				let prodPrice = Number($("#prodPrice").html().replace(",", ""));
-	    			let prodTotalPrice = prodCnt * prodPrice;
-	    			$("#prodTotalPrice").html(prodTotalPrice.toLocaleString());
-
-    			}
-    		});
-    		$("#cntPlusBtn").on("click", function(){
-    			let prodCnt = $("#prodCnt").html()-0+1;
-    			$("#prodCnt").html(prodCnt);
-    			
-    			let prodPrice = Number($("#prodPrice").html().replace(",", ""));
-    			let prodTotalPrice = prodCnt * prodPrice;
-    			$("#prodTotalPrice").html(prodTotalPrice.toLocaleString());
-    		});
-    		
-    		$("#cartBtn").on("click",function(){
-    			let prodNo = "${product.prodNo}";
-    			let prodCnt = Number($("#prodCnt").html());
-    			
-    			console.log(prodCnt);
-    			
-    			$.ajax({
-    				url: "${pageContext.request.contextPath }/mileageShopCartDo"
-    				, type: "post"
-    				, data: {
-    					prodNo : prodNo
-    					, prodCnt : prodCnt
-    				}
-    				,success: function(result){
-    					console.log(result);
-    					if(result == "fail"){
-	    					alert("장바구니 추가에 실패했습니다. 전산실에 문의해주세요.");
-    					}else if(result == "duplicate"){
-    						let check = confirm("상품이 이미 장바구니에 있습니다. 장바구니로 이동하시겠습니까?");
-    						if(!check){
-    							return;
-    						}else{
-    							location.href = "${pageContext.request.contextPath }/mileageShopCartView";
-    						}	
-    					}else if (result == "success"){
-    						let check = confirm("상품을 장바구니에 추가했습니다. 장바구니로 이동하시겠습니까?");
-    						if(!check){
-    							return;
-    						}else{
-    							location.href = "${pageContext.request.contextPath }/mileageShopCartView";
-    						}
-    					}
-    				}
-    				, error: function(){
-    					alert("서버와의 연결에 실패했습니다. 전산실에 문의해주세요.");
-    				}
-    			});
-    		});
-    		
-    		$("#orderDirBtn").click(function(){
-    			let pf = $("#prodForm");
-    			pf.find("input[name='prodCnt']").val($("#prodCnt").html());
-    			console.log("cnt:", pf.find("input[name='prodCnt']").val());
-    			
-    			pf.submit();
-    		});
-    	});
     </script>
 </body>
 </html>

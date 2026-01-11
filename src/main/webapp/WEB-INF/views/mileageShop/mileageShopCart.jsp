@@ -35,7 +35,6 @@
 </head>
 
 <body>
-	<input id="msg" type="hidden" value="${msg }">
     <!-- Spinner Start -->
     <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-border position-relative text-primary" style="width: 6rem; height: 6rem;" role="status"></div>
@@ -93,33 +92,51 @@
             	  			</tr>
             	  		</thead>
             	  		<tbody style="color : #333">
-            	  			<c:forEach items="${prodList }" var="prod">
             	  				<tr class="cartProd">
             	  					<td style="text-align: center"><input class="checkProd" style="zoom: 1.3" type="checkbox">
-	   	  								<input type="hidden" class="cartNo" name="cartNo" value="${prod.cartNo }">
+	   	  								<input type="hidden" class="cartNo" name="cartNo" value="1">
             	  					</td>
             	  					<td>
             	  						<div class="row">
             	  							<div class="col-4">
-            	  								<img alt="" style="border: 1px solid #eee" src="${prod.prodImgUrl }">
+            	  								<img alt="" style="border: 1px solid #eee" src="/resources/product/prod_img/2559.jpg">
             	  							</div>
             	  							<div class="col-8">
-            	  								<p style="color : var(--primary)">${prod.prodNo }</p>
-            	  								<p>${prod.prodName }</p>
+            	  								<p style="color : var(--primary)">002559</p>
+            	  								<p>아인 지우개</p>
             	  							</div>
             	  						</div>
             	  					</td>
-            	  					<td style="text-align: center">${prod.prodUnit }</td>
-            	  					<td style="text-align: center"><fmt:formatNumber value="${prod.prodPrice }" pattern="#,###,###"/></td>
-            	  					<td><input type="number" name="prodCnt" style="width: 70px; text-align: center" value="${prod.prodCnt }"><button type="button" class="changeCnt" style="font-size: 14px;">수량변경</button></td>
-            	  					<td style="text-align: center"><fmt:formatNumber value="${prod.prodPrice * prod.prodCnt }" pattern="#,###,###"/></td>
+            	  					<td style="text-align: center">개(1)</td>
+            	  					<td style="text-align: center">500</td>
+            	  					<td><input type="number" name="prodCnt" style="width: 70px; text-align: center" value="1"><button type="button" class="changeCnt" style="font-size: 14px;">수량변경</button></td>
+            	  					<td style="text-align: center">500</td>
             	  				</tr>
-            	  			</c:forEach>
+                                <tr class="cartProd">
+                                    <td style="text-align: center"><input class="checkProd" style="zoom: 1.3" type="checkbox">
+                                        <input type="hidden" class="cartNo" name="cartNo" value="2">
+                                    </td>
+                                    <td>
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <img alt="" style="border: 1px solid #eee" src="/resources/product/prod_img/29.jpg">
+                                            </div>
+                                            <div class="col-8">
+                                                <p style="color : var(--primary)">000029</p>
+                                                <p>스카치 테이프</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center">개(1)</td>
+                                    <td style="text-align: center">1000</td>
+                                    <td><input type="number" name="prodCnt" style="width: 70px; text-align: center" value="1"><button type="button" class="changeCnt" style="font-size: 14px;">수량변경</button></td>
+                                    <td style="text-align: center">1000</td>
+                                </tr>
             	  		</tbody>
             	  	</table>
-            	  	<form id="deleteForm" action="${pageContext.request.contextPath }/mileageShopDeleteDo">
-          				<input type="hidden" name="cartNoStr" value="">
-          			</form>
+<%--            	  	<form id="deleteForm" action="${pageContext.request.contextPath }/mileageShopDeleteDo">--%>
+<%--          				<input type="hidden" name="cartNoStr" value="">--%>
+<%--          			</form>--%>
             	  	<button type="button" id="deleteSelBtn" class="btn btn-outline-secondary" style="margin-top:5px">선택삭제</button>
                 </div>
                 <div class="col-lg-3" style="border: 0.5px solid gray; padding-top: 5px; min-height: 400px">
@@ -132,7 +149,7 @@
                                 </div>
                                 <div class="col-8" style="height: 100%">
                                 	<div style="width: 500px; height: 40px; float: right;  text-align:right;">
-                                		<p id="prodPriceSum" class="price-p"></p>
+                                		<p id="prodPriceSum" class="price-p">1500</p>
                                 		<p class="price-p">원</p>
                                 	</div>
                                 </div>
@@ -158,7 +175,7 @@
                                 </div>
                                 <div class="col-8" style="height: 100%">
                                 	<div style="width: 500px; height: 40px; float: right;  text-align:right;">
-                                		<p id="prodPriceSumFinal"  class="total-price-p"><fmt:formatNumber value="${product.prodPrice }" pattern="#,###,###"/></p>
+                                		<p id="prodPriceSumFinal"  class="total-price-p">1500</p>
                                 		<p class="total-price-p">원</p>
                                 	</div>
                                 </div>
@@ -268,129 +285,6 @@
     <script src="js/main.js"></script>
     
     <script type="text/javascript">
-	if("${login.memNo }" == null || "${login.memNo}" == ''){
-		location.href = "${pageContext.request.contextPath }/startView?msg=none";
-	}
-    	$(function(){
-    		
-   			let msg = $("#msg").val();
-   			
-   			if(msg == "oFail"){
-   				alert("결제에 실패했습니다. 전산실에 문의해주세요. 010-7358-4002");
-   			}else if (msg == "oSuccess"){
-   				alert("상품이 결제되었습니다.");
-   			}else if (msg == "dFail"){
-   				alert("항목 삭제에 실패했습니다. 전산실에 문의해주세요. 010-7358-4002");
-   			}else if (msg == "dSuccess"){
-   			}
-    		
-    		$("#checkAll").click(function(){
-    			if($(this).prop("checked") == true){
-	    			$(".checkProd").prop("checked", true);
-    			}else{
-	    			$(".checkProd").prop("checked", false);
-    			}
-    		});
-    		
-    		$(".changeCnt").click(function(){
-    			let cartNo = $($(this).parent().parent().children()[0]).find("input[name='cartNo']").val();
-    			console.log(cartNo);
-    			
-    			let prodCnt = $(this).parent().find("input[name='prodCnt']").val();
-    			console.log(prodCnt);
-    			if(prodCnt < 1){
-    				alert("구매 수량은 1개 이상 선택 가능합니다. 다시 선택해주세요.")
-    				location.reload();
-    				return;
-    			}
-    			
-    			$.ajax({
-    				url: "${pageContext.request.contextPath }/changeCartProdCnt"
-    				, type: "post"
-    				, data: {
-    					cartNo : cartNo
-    					, prodCnt: prodCnt
-    				}
-    				, success: function(result){
-    					if(result){
-	    					location.href = "${pageContext.request.contextPath }/mileageShopCartView";
-    					}else{
-	    					alert("수량 변경에 실패했습니다. 전산실에 문의해주세요.");
-    					}
-    				}
-    				, error: function(){
-    					alert("서버와의 연결에 실패했습니다. 전산실에 문의해주세요.");
-    				}
-    			});
-    		});
-    		
-    		let prodPriceSum = 0;
-    		$(".cartProd").each(function(){
-    			let prodTotalPrice = Number($($(this).children()[5]).html().replace(",", ""));
-    			prodPriceSum += prodTotalPrice;
-    		});
-    		
-    		$("#prodPriceSum").html(prodPriceSum.toLocaleString());
-    		$("#prodPriceSumFinal").html($("#prodPriceSum").html());
-    		
-    		$("#orderAllBtn").click(function(){
-    			let cartNoArr = []
-    			$(".cartNo").each(function(){
-    				cartNoArr.push($(this).val());
-    			});
-    			console.log(cartNoArr);
-    			if(cartNoArr.length == 0){
-    				alert("구매하실 항목이 없습니다.");
-    				return;
-    			}
-    			let cartNoStr = JSON.stringify(cartNoArr);
-    			
-    			let of = $("#orderForm");
-    			of.find("input[name='cartNoStr']").val(cartNoStr);
-    			
-    			of.submit();
-    		});
-    		
-    		$("#orderSelBtn").click(function(){
-    			let cartNoArr = []
-    			$(".checkProd").each(function(){
-    				if($(this).prop("checked") == true){
-	    				cartNoArr.push($(this).parent().find("input[name='cartNo']").val());
-    				}
-    			});
-    			console.log(cartNoArr.length);
-    			if(cartNoArr.length == 0){
-    				alert("구매하실 항목을 선택해주세요.")
-    				return;
-    			}
-    			let cartNoStr = JSON.stringify(cartNoArr);
-    			
-    			let of = $("#orderForm");
-    			of.find("input[name='cartNoStr']").val(cartNoStr);
-    			
-    			of.submit();
-    		});
-    		
-    		$("#deleteSelBtn").click(function(){
-    			let cartNoArr = []
-    			$(".checkProd").each(function(){
-    				if($(this).prop("checked") == true){
-	    				cartNoArr.push($(this).parent().find("input[name='cartNo']").val());
-    				}
-    			});
-    			console.log(cartNoArr.length);
-    			if(cartNoArr.length == 0){
-    				alert("삭제하실 항목을 선택해주세요.")
-    				return;
-    			}
-    			let cartNoStr = JSON.stringify(cartNoArr);
-    			
-    			let df = $("#deleteForm");
-    			df.find("input[name='cartNoStr']").val(cartNoStr);
-    			
-    			df.submit();
-    		});
-    	});
     </script>
 </body>
 </html>
