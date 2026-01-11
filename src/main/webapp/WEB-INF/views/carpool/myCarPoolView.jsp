@@ -692,7 +692,7 @@ if("${login.memNo }" == null || "${login.memNo}" == ''){
 							var passDiv= '<div class="pass-div row driver">'
 					    		+	'<div style="padding-left:5px; padding-top:5px" class="pass-img col-3"><img style="width:50px; height:50px;" alt="" src="${pageContext.request.contextPath }/img/base_img.png"></div>'
 						    	+	'<div class="pass-text col-9" style="padding-top:4px">'
-						    	+	'<p style="font-size:15px; display:inline-block; margin-bottom:3px">'+ carPool.passList[i].memTeam + "  " + carPool.passList[i].memName + '&nbsp;&nbsp;' + "(" + carPool.passList[i].memAge + "/" + "남" + ")</p><br>"
+						    	+	'<p style="font-size:15px; display:inline-block; margin-bottom:3px">'+ carPool.passList[i].memTeam + "  " + carPool.passList[i].memName + '&nbsp;&nbsp;' + "(" + carPool.passList[i].memAge + "/" + (carPool.passList[i].memGender === "M" ? "남" : "여") + ")</p><br>"
 						    	+		carPool.passList[i].memPhone
 						    	+	'</div>'
 					    		+'</div>';
@@ -701,7 +701,7 @@ if("${login.memNo }" == null || "${login.memNo}" == ''){
 							var passDiv= '<div class="pass-div row">'
 					    		+	'<div style="padding-left:5px; padding-top:5px" class="pass-img col-3"><img style="width:50px; height:50px;" alt="" src="${pageContext.request.contextPath }/img/base_img.png"></div>'
 						    	+	'<div class="pass-text col-9" style="padding-top:4px">'
-						    	+	'<p style="font-size:15px; display:inline-block; margin-bottom:3px;">'+ carPool.passList[i].memTeam + "  " + carPool.passList[i].memName + '&nbsp;&nbsp;' + "(" + carPool.passList[i].memAge + "/" + "남" + ")</p><br>"
+						    	+	'<p style="font-size:15px; display:inline-block; margin-bottom:3px;">'+ carPool.passList[i].memTeam + "  " + carPool.passList[i].memName + '&nbsp;&nbsp;' + "(" + carPool.passList[i].memAge + "/" + (carPool.passList[i].memGender === "M" ? "남" : "여") + ")</p><br>"
 						    	+		carPool.passList[i].memPhone
 						    	+	'</div>'
 					    		+'</div>';

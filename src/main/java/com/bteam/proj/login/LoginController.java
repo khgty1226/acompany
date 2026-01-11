@@ -142,7 +142,7 @@ public class LoginController {
 		//mb.addData("href", "/memberList");
 		
 		MessageVO message = mb.build();
-		wsmp.enqueueMessage(message);
+//		wsmp.enqueueMessage(message);
 		mb.clearData();
 		
 		return "redirect:/loginView?msg=success";
@@ -326,10 +326,10 @@ public class LoginController {
 		ChartVO carpoolRanker = chartService.getCarpoolRanker();
 		ChartVO shareRanker = chartService.getShareRanker();
 		
-		System.out.println("likeRanker= "+ likeRanker.getAtchNo());
-		System.out.println("saleRanker= "+ saleRanker.getAtchNo());
-		System.out.println("carpoolRanker= "+ carpoolRanker.getAtchNo());
-		System.out.println("shareRanker= "+ shareRanker.getAtchNo());
+//		System.out.println("likeRanker= "+ likeRanker.getAtchNo());
+//		System.out.println("saleRanker= "+ saleRanker.getAtchNo());
+//		System.out.println("carpoolRanker= "+ carpoolRanker.getAtchNo());
+//		System.out.println("shareRanker= "+ shareRanker.getAtchNo());
 		
 		model.addAttribute("likeRanker", likeRanker);
 		model.addAttribute("saleRanker", saleRanker);

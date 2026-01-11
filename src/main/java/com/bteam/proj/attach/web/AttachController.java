@@ -149,7 +149,8 @@ public class AttachController {
 		
 		try {
 			// 개발자는 pc03 // 서버용은 pc222
-			fis = new FileInputStream("/home/pc222/uploads/" + filePath + File.separator + fileName);
+//			fis = new FileInputStream("/home/pc222/uploads/" + filePath + File.separator + fileName);
+			fis = new FileInputStream("C:\\hyungon\\02.projects\\01.Acompany\\upload\\" + filePath + File.separator + fileName);
 			byteData = IOUtils.toByteArray(fis);
 		} catch (Exception e) {
 			e.printStackTrace();

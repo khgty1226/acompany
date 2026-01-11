@@ -131,8 +131,9 @@ public class BoardController {
 		// 개발용
 		//String fileRoot = "/home/pc03/uploads/summernote_image/";
 		// 서버용
-		String fileRoot = "/home/pc222/uploads/summernote_image/";
-		
+//		String fileRoot = "/home/pc222/uploads/summernote_image/";
+		String fileRoot = "C:\\hyungon\\02.projects\\01.Acompany\\upload\\summernote_image\\";
+
 		// 오리지날 파일명
 		String originalFileName = multipartFile.getOriginalFilename();
 

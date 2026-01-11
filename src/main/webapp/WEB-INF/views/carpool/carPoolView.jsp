@@ -145,7 +145,7 @@
 	                          <div class="row g-4">
 	                              <div class="col-md-12 card border-info">
 										  <div class="card-header">CAR POOL</div>
-										  <div class="card-body" style="height: 100%; padding-top:">
+										  <div class="card-body" style="height: 100%;">
 											  <div class="card-body-div hidden-form">
 											    <h5 class="card-title">카풀 번호 : </h5>
 											    <form id="applyForm" method="post" action="">
@@ -482,7 +482,7 @@
 							var passDiv= '<div class="pass-div row driver">'
 					    		+	'<div style="padding-left:5px; padding-top:5px" class="pass-img col-3"><img style="width:50px; height:50px;" alt="" src="${pageContext.request.contextPath }/img/base_img.png"></div>'
 						    	+	'<div class="pass-text col-9" style="padding-top:4px">'
-						    	+	'<p style="font-size:15px; display:inline-block; margin-bottom:3px">'+ carPool.passList[i].memTeam + "  " + carPool.passList[i].memName + '&nbsp;&nbsp;' + "(" + carPool.passList[i].memAge + "/" + "남" + ")</p><br>"
+						    	+	'<p style="font-size:15px; display:inline-block; margin-bottom:3px">'+ carPool.passList[i].memTeam + "  " + carPool.passList[i].memName + '&nbsp;&nbsp;' + "(" + carPool.passList[i].memAge + "/" + (carPool.passList[i].memGender === "M" ? "남" : "여") + ")</p><br>"
 						    	+		carPool.passList[i].memPhone
 						    	+	'</div>'
 					    		+'</div>';
@@ -491,7 +491,7 @@
 							var passDiv= '<div class="pass-div row">'
 					    		+	'<div style="padding-left:5px; padding-top:5px" class="pass-img col-3"><img style="width:50px; height:50px;" alt="" src="${pageContext.request.contextPath }/img/base_img.png"></div>'
 						    	+	'<div class="pass-text col-9" style="padding-top:4px">'
-						    	+	'<p style="font-size:15px; display:inline-block; margin-bottom:3px;">'+ carPool.passList[i].memTeam + "  " + carPool.passList[i].memName + '&nbsp;&nbsp;' + "(" + carPool.passList[i].memAge + "/" + "남" + ")</p><br>"
+						    	+	'<p style="font-size:15px; display:inline-block; margin-bottom:3px;">'+ carPool.passList[i].memTeam + "  " + carPool.passList[i].memName + '&nbsp;&nbsp;' + "(" + carPool.passList[i].memAge + "/" + (carPool.passList[i].memGender === "M" ? "남" : "여") + ")</p><br>"
 						    	+		carPool.passList[i].memPhone
 						    	+	'</div>'
 					    		+'</div>';
