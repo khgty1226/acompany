@@ -124,7 +124,7 @@ public class CarPoolController {
 			mb.addData("ChatDate", ZonedDateTime.now().toString());
 			
 			MessageVO message = mb.build();
-			wsmp.enqueueMessage(message);
+//			wsmp.enqueueMessage(message);
 			mb.clearData();
 			
 			return "redirect:/carPoolView?msg=apply";
@@ -177,7 +177,7 @@ public class CarPoolController {
 			mb.addData("ChatDate", ZonedDateTime.now().toString());
 			
 			MessageVO message = mb.build();
-			wsmp.enqueueMessage(message);
+//			wsmp.enqueueMessage(message);
 			mb.clearData();
 			
 			if(location.equals("my")) {
@@ -219,7 +219,7 @@ public class CarPoolController {
 						mb.addData("ChatDate", ZonedDateTime.now().toString());
 						
 						MessageVO message = mb.build();
-						wsmp.enqueueMessage(message);
+//						wsmp.enqueueMessage(message);
 						mb.clearData();
 					}
 				}
@@ -425,7 +425,7 @@ public class CarPoolController {
 					mb.addData("ChatDate", ZonedDateTime.now().toString());
 					
 					MessageVO message = mb.build();
-					wsmp.enqueueMessage(message);
+//					wsmp.enqueueMessage(message);
 					mb.clearData();
 				}
 			}
@@ -471,7 +471,7 @@ public class CarPoolController {
 				mb.addData("ChatDate", ZonedDateTime.now().toString());
 				
 				MessageVO message = mb.build();
-				wsmp.enqueueMessage(message);
+//				wsmp.enqueueMessage(message);
 				mb.clearData();
 				
 				return "redirect:/myCarPoolView?msg=cSuccess";

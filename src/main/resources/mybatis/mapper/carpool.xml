@@ -380,10 +380,12 @@
 		INSERT INTO carpool_passenger(
 			mem_no
 			, cp_no
+			, cp_state
 		)
 		VALUES(
 		    #{memNo}
 		    , #{cpNo}
+			, 'P'
 		)
 	</insert>
 	
@@ -503,9 +505,11 @@
 		INSERT INTO carpool_passenger(
 			cp_no
 			, mem_no
+			, cp_state
 		)VALUES(
 			#{cpNo}
 			, #{memNo}
+			, 'P'
 		)
 	</insert>
 

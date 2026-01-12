@@ -605,6 +605,12 @@
 		}
 		
 		fn_myApply();
+
+        $("#carPoolSearchWord").on('keyup', function(key){
+            if(key.keyCode === 13){
+                $("#carPoolSearchBtn").click();
+            }
+        })
 		
 		$("#carPoolSearchBtn").on('click', function(){
 			
