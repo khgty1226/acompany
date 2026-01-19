@@ -30,7 +30,7 @@ public class KakaoPayService {
 	// 결제 요청 준비 메소드
 	public KakaoPayReadyVO kakaoPay(Map<String,Object> params) {
 		HttpHeaders headers = new HttpHeaders();
-		headers.set("Authorization", "KakaoAK 2dae9eb5149e53cd3addf689878706dc"); // 발급받은 adminKey
+		headers.set("Authorization", "KakaoAK " + admin_Key); // 발급받은 adminKey
 		
 		/**
 		 * 결제 번호는 고유한 결제번호로 생성해줘야 한다.
@@ -53,9 +53,9 @@ public class KakaoPayService {
 		payParams.add("memMileage", params.get("memMileage"));					// 마일리지
 		payParams.add("memNo", params.get("memNo"));					// 마일리지
 		payParams.add("tax_free_amount", params.get("tax_free_amount"));			// 상품 비과세 금액
-		payParams.add("approval_url", "http://192.168.1.65:8080/paySuccess");		// 결제 승인시 넘어갈 url
-		payParams.add("cancel_url", "http://192.168.1.65:8080/payCancel");		// 결제 취소시 넘어갈 url
-		payParams.add("fail_url", "http://192.168.1.65:8080/payFail");			// 결제 실패시 넘어갈 url
+		payParams.add("approval_url", "http://localhost:8080/paySuccess");		// 결제 승인시 넘어갈 url
+		payParams.add("cancel_url", "http://localhost:8080/payCancel");		// 결제 취소시 넘어갈 url
+		payParams.add("fail_url", "http://localhost:8080/payFail");			// 결제 실패시 넘어갈 url
 		
 		// 카카오페이 결제준비 api 요청
 		HttpEntity<Map> request = new HttpEntity<>(payParams, headers);
@@ -89,7 +89,7 @@ public class KakaoPayService {
 	// 결제 요청 준비 메소드 (다이렉트)
 		public KakaoPayReadyVO kakaoPayD(Map<String,Object> params) {
 			HttpHeaders headers = new HttpHeaders();
-			headers.set("Authorization", "KakaoAK 2dae9eb5149e53cd3addf689878706dc"); // 발급받은 adminKey
+			headers.set("Authorization", "KakaoAK " + admin_Key); // 발급받은 adminKey
 			
 			/**
 			 * 결제 번호는 고유한 결제번호로 생성해줘야 한다.
@@ -109,9 +109,9 @@ public class KakaoPayService {
 			payParams.add("memMileage", params.get("memMileage"));					// 마일리지
 			payParams.add("memNo", params.get("memNo"));					// 마일리지
 			payParams.add("tax_free_amount", params.get("tax_free_amount"));			// 상품 비과세 금액
-			payParams.add("approval_url", "http://192.168.1.65:8080/paySuccessD");		// 결제 승인시 넘어갈 url
-			payParams.add("cancel_url", "http://192.168.1.65:8080/payCancel");		// 결제 취소시 넘어갈 url
-			payParams.add("fail_url", "http://192.168.1.65:8080/payFail");			// 결제 실패시 넘어갈 url
+			payParams.add("approval_url", "http://localhost:8080/paySuccessD");		// 결제 승인시 넘어갈 url
+			payParams.add("cancel_url", "http://localhost:8080/payCancel");		// 결제 취소시 넘어갈 url
+			payParams.add("fail_url", "http://localhost:8080/payFail");			// 결제 실패시 넘어갈 url
 			
 			// 카카오페이 결제준비 api 요청
 			HttpEntity<Map> request = new HttpEntity<>(payParams, headers);
@@ -150,7 +150,7 @@ public class KakaoPayService {
 			
 			System.out.println("kakaoApproveInfo............................");
 			HttpHeaders headers = new HttpHeaders();
-			headers.set("Authorization", "KakaoAK 2dae9eb5149e53cd3addf689878706dc"); 			// 발급받은 adminKey
+			headers.set("Authorization", "KakaoAK " + admin_Key); 			// 발급받은 adminKey
 			headers.set("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
 			
 			MultiValueMap<String, Object> payParams = new LinkedMultiValueMap<String, Object>();
@@ -192,7 +192,7 @@ public class KakaoPayService {
 			
 			System.out.println("kakaoApproveInfo............................");
 			HttpHeaders headers = new HttpHeaders();
-			headers.set("Authorization", "KakaoAK 2dae9eb5149e53cd3addf689878706dc"); 			// 발급받은 adminKey
+			headers.set("Authorization", "KakaoAK " + admin_Key); 			// 발급받은 adminKey
 			headers.set("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
 			
 			MultiValueMap<String, Object> payParams = new LinkedMultiValueMap<String, Object>();
